@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 
 
 import hashlib
@@ -8,25 +8,63 @@ import time
 import requests
 
 from urllib import urlencode
-from decimal import Decimal
-from datetime import datetime
 
 
-class ApiError(Exception):
-    pass
+from bitso import (ApiError, ApiClientError, Ticker, OrderBook, Balance, Transaction,
+                     UserTransaction, Order)
 
-class ApiClientError(Exception):
-    pass
-    
 
 class Api(object):
+    """A python interface for the Bitso API
+
+    Example usage:
+      To create an instance of the bitso.Api class, without authentication:
+      
+        >>> import bitso
+        >>> api = bitso.Api()
+      
+      To get the Bitso price ticker:
+      
+        >>> ticker = api.ticker()
+        >>> print ticker.ask
+        >>> print ticker.bid
+
+      To use the private endpoints, initiate bitso.Api with a client_id,
+      api_key, and api_secret (see https://bitso.com/developers?shell#private-endpoints):
+      
+        >>> api = bitso.Api(CLIENT_ID, API_KEY, API_SECRET)
+        >>> balance = api.balance()
+        >>> print balance.btc_available
+        >>> print balance.mxn_available
+    """
+    
     def __init__(self, client_id=None, key=None, secret=None):
+        """Instantiate a bitso.Api object.
+        
+        Args:
+          client_id:
+            Bitso Client ID
+          key:
+            Bitso API Key 
+          secret:
+            Bitso API Secret
+        """
         self.base_url = "https://bitso.com/api/v2"
         self.client_id = client_id
         self.key = key
         self._secret = secret
 
     def ticker(self, book=None):
+        """Get a Bitso price ticker.
+
+        Args:
+          book (str, optional):
+            Specifies which book to use. Default is btc_mxn
+            
+        Returns:
+          A bitso.Ticker instance.
+        
+        """
         url = '%s/ticker' % self.base_url
         parameters = {}
         if book:
@@ -36,27 +74,68 @@ class Api(object):
 
 
     def order_book(self, book=None, group=None):
+        """Get a public Bitso order book with a 
+        list of all open orders in the specified book
+        
+
+        Args:
+          book (str, optional):
+            Specifies which book to use. Default is btc_mxn
+          group (bool, optional):
+            Specifies if orders with the same price should
+            be grouped. Default is True
+            
+        Returns:
+          A bitso.OrderBook instance.
+        
+        """
+
         url = '%s/order_book' % self.base_url
         parameters = {}
         if book:
-            parameters['book'] = book
+            if book == True:
+                parameters['book'] = True
+            else:
+                parameters['book'] = False
         if group:
             parameters['group'] = group
         resp = self._request_url(url, 'GET', params=parameters)
         return OrderBook._NewFromJsonDict(resp)
 
-
     def transactions(self, book=None, time=None):
+        """Get a list of recent trades from the specified book.
+
+        Args:
+          book (str, optional):
+            Specifies which book to use. Default is btc_mxn
+          time (str, optional):
+            Time frame for transaction export ('minute', 'hour')
+            Default is 'hour'.
+            
+        Returns:
+          A list of bitso.Transaction instances.        
+        """
+
         url = '%s/transactions' % self.base_url
         parameters = {}
         if book:
             parameters['book'] = book
         if time:
+            if time.lower() not in ('minute', 'hour'):
+                raise ApiClientError({u'message': u"time is not 'hour' or 'minute'"})
             parameters['time'] = time
         resp = self._request_url(url, 'GET', params=parameters)
         return [Transaction._NewFromJsonDict(x) for x in resp]
 
     def balance(self):
+        """Get a user's balance.
+
+        Args: None
+
+        Returns:
+          A bitso.Balance instance.        
+        """
+
         url = '%s/balance' % self.base_url
         parameters = self._build_auth_payload()
         resp = self._request_url(url, 'POST', params=parameters)
@@ -64,6 +143,26 @@ class Api(object):
 
 
     def user_transactions(self, offset=None, limit=None, sort=None, book=None):
+        """Get a list of the user's transactions
+
+        Args:
+          offset (int, optional):
+            Skip that many transactions before beginning to return results.
+            Defuault is 0
+          limit (int, optional):
+            Limit result to that many transactions.
+            Defuault is 100
+          sort (str, optional):
+            Sorting by datetime: 'asc', 'desc'
+            Defuault is 'desc'
+          book (str, optional):
+            Specifies which book to use. Default is btc_mxn
+
+            
+        Returns:
+          A list bitso.UserTransaction instances.        
+        """
+
         url = '%s/user_transactions' % self.base_url
         parameters = self._build_auth_payload()
         if offset:
@@ -80,6 +179,15 @@ class Api(object):
         return [UserTransaction._NewFromJsonDict(x) for x in resp]
 
     def open_orders(self, book=None):
+        """"Get a list of the user's open orders
+
+        Args:
+          book (str, optional):
+            Specifies which book to use. Default is btc_mxn
+            
+        Returns:
+          A list of bitso.Order instances.        
+        """
         url = '%s/open_orders' % self.base_url
         parameters = self._build_auth_payload()
         if book:
@@ -89,16 +197,33 @@ class Api(object):
 
 
     def lookup_order(self, order_ids):
+        """"Get a list of details for one or more orders
+
+        Args:
+          order_ids (list):
+            A list of Bitso Order IDs
+            
+        Returns:
+          A list of bitso.Order instances.        
+        """
         url = '%s/lookup_order' % self.base_url
         if isinstance(order_ids, basestring):
             order_ids = [order_ids]
         parameters = self._build_auth_payload()
-        #parameters['id'] = ','.join(order_ids)
         parameters['id[]'] = order_ids
         resp = self._request_url(url, 'POST', params=parameters)
         return [Order._NewFromJsonDict(x) for x in resp]
 
     def cancel_order(self, order_id):
+        """"Cancels an open order
+
+        Args:
+          order_id (str):
+            A Bitso Order ID.
+            
+        Returns:
+          true.        
+        """
         url = '%s/cancel_order' % self.base_url
         parameters = self._build_auth_payload()
         parameters['id'] = order_id
@@ -106,19 +231,49 @@ class Api(object):
         return resp
 
     def buy(self, amount=None, price=None, book=None):
+        """"Places a buy limit order.
+
+        Args:
+          amount (str):
+            Amount of major currency to buy. 
+          price (str):
+            Specified price for the limit order.
+          book (str, optional):
+            Specifies which book to use. Default is btc_mxn
+
+        Returns:
+          A bitso.Order instance.        
+        """
+
         if amount is None:
             raise ApiClientError({u'message': u'amount not specified.'})
         url = '%s/buy' % self.base_url
         parameters = self._build_auth_payload()
         parameters['amount'] = str(amount).encode('utf-8')
-        if price is not None:
-            parameters['price'] = str(price).encode('utf-8')
+        if price is None:
+            raise ApiClientError({u'message': u'price not specified.'})
+        parameters['price'] = str(price).encode('utf-8')
         parameters['book'] = book
         resp = self._request_url(url, 'POST', params=parameters)
         return Order._NewFromJsonDict(resp) 
 
 
     def sell(self, amount=None, price=None, book=None):
+        """"Places a sell order (both limit and market orders are available)
+
+        Args:
+          amount (str):
+            Amount of major currency to buy. 
+          price (str, optional):
+            If supplied, this will place a limit order to sell at the specified price.
+            If not supplied, this will place a market order to sell the amount of major
+            currency specified in amount at the market rate
+          book (str, optional):
+            Specifies which book to use. Default is btc_mxn
+
+        Returns:
+          A bitso.Order instance.        
+        """
         if amount is None:
             raise ApiClientError({u'message': u'amount not specified.'})
         url = '%s/sell' % self.base_url
@@ -132,12 +287,31 @@ class Api(object):
 
 
     def btc_deposit_address(self):
+        """"Gets a Bitcoin deposit address to fund your account
+
+        Args: None
+        
+        Returns:
+          A Bitcoin address       
+        """
         url = '%s/bitcoin_deposit_address' % self.base_url
         parameters = self._build_auth_payload()
         resp = self._request_url(url, 'POST', params=parameters)
         return resp
 
     def btc_withdrawal(self, amount, address):
+        """"Triggers a bitcoin withdrawal from your account
+
+        Args:
+          amount (str):
+            The amount of BTC to withdraw from your account
+          address (str):
+            The Bitcoin address to send the amount to
+        
+        Returns:
+          ok      
+        """
+
         url = '%s/bitcoin_withdrawal' % self.base_url
         parameters = self._build_auth_payload()
         parameters['amount'] = str(amount).encode('utf-8')
@@ -146,6 +320,29 @@ class Api(object):
         return resp
 
     def mxn_withdrawal(self, amount=None, first_names=None, last_names=None, clabe=None, notes_ref=None, numeric_ref=None):
+        """"Triggers a SPEI withdrawal from your account. These withdrawals are
+        immediate during banking hours (M-F 9:00AM - 5:00PM Mexico City Time).
+
+        Args:
+          amount (str):
+            The amount of MXN to withdraw from your account
+          recipient_given_names (str):
+            The recipient's first and middle name(s)
+          recipient_family_names (str):
+            The recipient's last names
+          clabe (str):
+            The CLABE number where the funds will be sent to
+            https://en.wikipedia.org/wiki/CLABE
+          notes_ref (str):
+            The alpha-numeric reference number for this SPEI
+          numeric_ref (str):
+            The numeric reference for this SPEI
+        
+        Returns:
+          ok      
+        """
+
+        
         url = '%s/spei_withdrawal' % self.base_url
         parameters = self._build_auth_payload()
         parameters['amount'] = str(amount).encode('utf-8')
@@ -221,189 +418,6 @@ class Api(object):
                 raise ApiError(data[0]['error'])
         
 
+     
+     
 
-class BaseModel(object):
-    def __init__(self, **kwargs):
-        self._default_params = {}
-
-    @classmethod
-    def _NewFromJsonDict(cls, data, **kwargs):
-        if kwargs:
-            for key, val in kwargs.items():
-                data[key] = val
-        return cls(**data)
-
-        
-
-class Ticker(BaseModel):
-    def __init__(self, **kwargs):
-        self._default_params = {
-            'ask': Decimal(kwargs.get('ask')),
-            'bid': Decimal(kwargs.get('bid')),
-            'high': Decimal(kwargs.get('high')),
-            'last': Decimal(kwargs.get('last')),
-            'low': Decimal(kwargs.get('low')),
-            'vwap': Decimal(kwargs.get('vwap')),
-            'timestamp': kwargs.get('timestamp'),
-            'datetime': datetime.fromtimestamp(int(kwargs.get('timestamp'))),
-        }
-        
-        for (param, val) in self._default_params.items():
-            setattr(self, param, val)
-
-    def __repr__(self):
-        return "Ticker(ask={ask}, bid={bid}, high={high}, last={last}, low={low}, datetime={datetime}, vwaplow={vwap})".format(
-            ask=self.ask,
-            bid=self.bid,
-            high=self.high,
-            low=self.low,
-            last=self.last,
-            vwap=self.vwap,
-            datetime=self.datetime)
-
-            
-class OrderBook(BaseModel):
-    def __init__(self, **kwargs):
-        self._default_params = {
-            'asks': kwargs.get('asks'),
-            'bids': kwargs.get('bids'),
-            'timestamp': kwargs.get('timestamp'),
-            'datetime': datetime.fromtimestamp(int(kwargs.get('timestamp')))
-        }
-
-        for (param, val) in self._default_params.items():
-            if param in ['asks', 'bids']:
-                parsed_asks = []
-                for ask in val:
-                    parsed_asks.append({'price': Decimal(ask[0]), 'amount': Decimal(ask[1])})
-                setattr(self, param, parsed_asks)
-                continue
-            setattr(self, param, val)
-
-
-    def __repr__(self):
-        return "OrderBook({num_asks} asks, {num_bids} bids, timestamp={timestamp})".format(
-            num_asks=len(self.asks),
-            num_bids=len(self.bids),
-            timestamp=self.timestamp)
-
-            
-class Transaction(BaseModel):
-    def __init__(self, **kwargs):
-        self._default_params = {
-            'tid': kwargs.get('tid'),
-            'amount': Decimal(kwargs.get('amount')),
-            'price': Decimal(kwargs.get('price')),
-            'side': kwargs.get('side'),
-            'timestamp': kwargs.get('date'),
-            'datetime':  datetime.fromtimestamp(int(kwargs.get('date')))
-
-            
-        }
-
-        for (param, val) in self._default_params.items():
-            setattr(self, param, val)
-
-    def __repr__(self):
-        return "Transaction(tid={tid}, price={price}, amount={amount}, side={side}, datetime={datetime})".format(
-            tid=self.tid,
-            price=self.price,
-            amount=self.amount,
-            side=self.side,
-            datetime=self.datetime)
-
-
-
-class Balance(BaseModel):
-    def __init__(self, **kwargs):
-        self._default_params = {
-            'btc_available': Decimal(kwargs.get('btc_available')),            
-            'btc_balance': Decimal(kwargs.get('btc_balance')),
-            'btc_reserved': Decimal(kwargs.get('btc_reserved')),
-            'mxn_available': Decimal(kwargs.get('mxn_available')),
-            'mxn_balance': Decimal(kwargs.get('mxn_balance')),
-            'mxn_reserved': Decimal(kwargs.get('mxn_reserved')),
-            'fee': Decimal(kwargs.get('fee')),
-        }
-
-        for (param, val) in self._default_params.items():
-            setattr(self, param, val)
-            
-    def __repr__(self):
-        return "Balance(btc_available={btc_available}, btc_balance={btc_balance}, btc_reserved={btc_reserved}, mxn_available={mxn_available}, mxn_balance={mxn_balance}, mxn_reserved={mxn_reserved}, fee={fee})".format(
-            btc_available=self.btc_available,
-            btc_balance=self.btc_balance,
-            btc_reserved=self.btc_reserved,
-            mxn_available=self.mxn_available,
-            mxn_balance=self.mxn_balance,
-            mxn_reserved=self.mxn_reserved,
-            fee=self.fee)
-        
-            
-class UserTransaction(BaseModel):
-    def __init__(self, **kwargs):
-        self._type_mappings = {
-            0: 'deposit',
-            1: 'withdrawal',
-            2: 'trade'
-        }
-
-        for (param, value) in kwargs.items():
-            if param == 'id':
-                param = 'tid'
-            elif param == 'type':
-                value = self._type_mappings.get(value,value)
-            elif param == 'datetime':
-                value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
-                param = 'created_datetime'
-            setattr(self, param, value)
-
-    def __repr__(self):
-        return "UserTransaction(type={tx_type}, created_datetime={created_datetime})".format(
-            tx_type=self.type,
-            created_datetime=self.created_datetime)
-        
-
-class Order(BaseModel):
-    def __init__(self, **kwargs):
-        self._status_mappings = {
-            '-1': 'cancelled',
-            '0': 'active',
-            '1': 'partial',
-            '2': 'complete'
-        }
-        
-        self._type_mappings = {
-            '0': 'buy',
-            '1': 'sell'
-        }
-
-        for (param, value) in kwargs.items():
-            if param == 'datetime':
-                param = 'created_datetime'
-                value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
-            elif param in ['created', 'updated']:
-                param = param + '_datetime'
-                value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
-            elif param == 'id':
-                param = 'order_id'
-            elif param == 'status':
-                value = self._status_mappings.get(value,value)
-            elif param == 'type':
-                value = self._type_mappings.get(value,value)
-            elif param == 'price':
-                if Decimal(value) == 0.0:
-                    value = None
-                else:
-                    value = Decimal(value)
-            elif param == 'amount':
-                value = Decimal(value)
-            setattr(self, param, value)
-            
-    def __repr__(self):
-        return "Order(order_id={order_id}, type={order_type}, price={price}, amount={amount}, created_datetime={created_datetime})".format(
-            order_id=self.order_id,
-            order_type=self.type,
-            price=self.price,
-            amount=self.amount,
-            created_datetime=self.created_datetime)

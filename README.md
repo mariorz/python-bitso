@@ -210,7 +210,7 @@ Order(order_id=0zx3f7b8k5jrx1vj123y4nfkd9sguihvhfywm957epycqtvsvzq0m6k0fdgavy5d,
 
 ```
 
-### Sell Limit Order ###
+### Sell Order ###
 
 ```python
 # Places a sell order (both limit and market orders are available)

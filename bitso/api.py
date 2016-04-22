@@ -377,6 +377,9 @@ class Api(object):
                 resp = requests.post(url, data=params)
             except requests.RequestException as e:
                 raise
+        if resp.status_code != 200:
+            raise ApiError({u'message': 'Response Status Code: %d' % resp.status_code})
+ 
         data = self._parse_json(resp.content.decode('utf-8'))
         return data
 

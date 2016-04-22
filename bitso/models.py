@@ -164,6 +164,8 @@ class UserTransaction(BaseModel):
             elif param == 'datetime':
                 value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
                 param = 'created_datetime'
+            elif param in ('btc', 'mxn', 'rate'):
+                value = Decimal(value)
             setattr(self, param, value)
 
     def __repr__(self):

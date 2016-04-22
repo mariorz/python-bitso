@@ -366,7 +366,6 @@ class UserTransaction(BaseModel):
 
 class Order(BaseModel):
     def __init__(self, **kwargs):
-        print kwargs
         self._status_mappings = {
             '-1': 'cancelled',
             '0': 'active',
@@ -395,7 +394,8 @@ class Order(BaseModel):
             elif param == 'price':
                 if Decimal(value) == 0.0:
                     value = None
-                value = Decimal(value)
+                else:
+                    value = Decimal(value)
             elif param == 'amount':
                 value = Decimal(value)
             setattr(self, param, value)

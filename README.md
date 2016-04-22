@@ -25,20 +25,15 @@ A python wrapper for the [Bitso API](https://bitso.com/api_info/)
 
 ```python
 # Ticker information
- >>>  api.ticker()
-{
-	'last': decimal,                 # Last traded price
-	'high': decimal,                # Last 24 hours price high
-	'low': decimal,                  # Last 24 hours price low
-	'vwap': decimal,               # Last 24 hours volume weighted average price
-	'volume': decimal,           # Last 24 hours volume
-	'bid': decimal,                  # Highest buy order
-    'ask': decimal                  # Lowest sell order
-    'timestamp': string,         # Current unix timestamp
-	'datetime': datetime,        # Current datetime
-    
-}
-```
+ >>> tick = api.ticker()
+ >>> tick
+ Ticker(ask=7866.27, bid=7795.00, high=7866.27, last=7866.27, low=7707.43, datetime=2016-04-22 16:46:25, vwaplow=7795.00)
+ >>> tick.last
+ Decimal('7866.27')
+ >>> tick.datetime
+ datetime.datetime(2016, 4, 22, 16, 46, 53)
+ ```
+
 
 ### Order Book ###
 

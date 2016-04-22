@@ -45,8 +45,9 @@ A python wrapper for the [Bitso API](https://bitso.com/api_info/)
 ## [group = True] - Group orders with the same price
 ##                - boolean
 >>> ob = api.order_book()
->>> print ob.datetime  # datetime object
->>> print ob.bids
+>>> ob.datetime  # datetime object
+datetime.datetime(2016, 4, 22, 18, 24, 58)
+>>> ob.bids
 [                  
         {
             'price': decimal,   ## Price for bid
@@ -54,7 +55,7 @@ A python wrapper for the [Bitso API](https://bitso.com/api_info/)
         }, ...
 ]
 
->>> print ob.asks
+>>> ob.asks
 
 [                   
         {
@@ -75,7 +76,7 @@ A python wrapper for the [Bitso API](https://bitso.com/api_info/)
 ## [time = 'hour']   - Time frame for transaction export ('hour', 'minute')
 ##                 - str
 >>> txs = api.transactions()
->>> print txs
+>>> txs
 [Transaction(tid=91314, price=7864.10, amount=0.81446192, side=sell, datetime=2016-04-22 13:47:29),
  Transaction(tid=91313, price=7864.10, amount=0.32061901, side=sell, datetime=2016-04-22 13:36:18),
  Transaction(tid=91312, price=7863.72, amount=0.00357865, side=buy, datetime=2016-04-22 13:34:27),
@@ -84,11 +85,11 @@ A python wrapper for the [Bitso API](https://bitso.com/api_info/)
  ]
 
 >>> txs[0].price
->>> Decimal('7864.10')
+Decimal('7864.10')
 >>> txs[0].amount
->>> Decimal('0.81446192')
+Decimal('0.81446192')
 >>> txs[0].datetime 
->>> datetime.datetime(2016, 4, 22, 13, 47, 29)
+datetime.datetime(2016, 4, 22, 13, 47, 29)
 
 ```
 
@@ -109,9 +110,9 @@ with your [Bitso credentials](https://bitso.com/api_info#generating-api-keys)
 # Your account balance
 >>> balance = api.balance()
 >>> balance.mxn_balance
->>> Decimal('4834.63')
+Decimal('4834.63')
 >>> balance.btc_balance
->>> Decimal('1.01300152')
+Decimal('1.01300152')
 
 
     'mxn_balance': decimal,     # MXN balance
@@ -137,7 +138,7 @@ with your [Bitso credentials](https://bitso.com/api_info#generating-api-keys)
 ##                 - string - 'asc' or
 ##                 -        - 'desc'
 >>> utx = api.user_transactions()
->>> print utx
+>>> utx
 [UserTransaction(type=trade, created_datetime=2016-04-21 23:17:39),
  UserTransaction(type=trade, created_datetime=2016-04-21 23:11:39),
  UserTransaction(type=trade, created_datetime=2016-04-21 21:40:07),
@@ -147,13 +148,13 @@ with your [Bitso credentials](https://bitso.com/api_info#generating-api-keys)
  ]
 
 >>> utx[0].type
->>> 'trade'
+'trade'
 >>> utx[0].btc
->>> Decimal('0.00981097')
+Decimal('0.00981097')
 >>> txs[0].btc_mxn
->>> Decimal('7780.00')
+Decimal('7780.00')
 >>> txs[0].rate
->>> Decimal('7780.00')
+Decimal('7780.00')
 
 
 ```
@@ -163,12 +164,12 @@ with your [Bitso credentials](https://bitso.com/api_info#generating-api-keys)
 ```python
 # Returns a list of the user’s open orders
 >>> oo = api.open_orders()
->>> print oo
+>>> oo
 [Order(order_id=s5ntlud6oupippk8iigw5dazjdxwq5vibjcwdp32ksk9i4h0nyxsc8svlpscuov5, type=buy, price=7000.00, amount=0.01000000, created_datetime=2016-04-22 14:31:10)]
 >>> oo[0].price
->>> Decimal('7000.00')
+Decimal('7000.00')
 >>> oo[0].order_id
->>> s5ntlud6oupippk8iigw5dazjdxwq5vibjcwdp32ksl9i4h0nyxsc8svlpscuov5
+s5ntlud6oupippk8iigw5dazjdxwq5vibjcwdp32ksl9i4h0nyxsc8svlpscuov5
 
 ```
 
@@ -180,7 +181,7 @@ with your [Bitso credentials](https://bitso.com/api_info#generating-api-keys)
 ## order_id -  A Bitso Order ID.
 ##          - string
 >>> api.cancel_order(ORDER_ID)
->>> u'true' #on success
+u'true' #on success
 ```
 
 ### Buy Limit Order ###
@@ -197,11 +198,11 @@ with your [Bitso credentials](https://bitso.com/api_info#generating-api-keys)
 >>> order
 Order(order_id=0zx3f7b8k5jrx1vj123y4nfkd9sguihvhfywm957epycqtvsvzq0m6k0fdgavy5d, type=buy, price=7000.00, amount=0.01000000, created_datetime=2016-04-22 14:43:13)
 >>> order.order_id
->>> u'0zx3f7b8k5jrx1vj123y4nfkd9sguihvhfywm957epycqtvsvzq0m6k0fdgavy5d'
+u'0zx3f7b8k5jrx1vj123y4nfkd9sguihvhfywm957epycqtvsvzq0m6k0fdgavy5d'
 >>> order.price
->>> Decimal('7000.00')
+Decimal('7000.00')
 >>> order.amount
->>> Decimal('0.01000000')
+Decimal('0.01000000')
 
 ```
 
@@ -219,7 +220,7 @@ Order(order_id=0zx3f7b8k5jrx1vj123y4nfkd9sguihvhfywm957epycqtvsvzq0m6k0fdgavy5d,
 ##                 - str
 >>> s_order = api.sell(amount='.0032', price='08000')
 >>> s_order
->>> Order(order_id=whtyptv0f348fajdydoswcf6cj20d0kahd97647l7ctnnd1lrpdn2suebwfpxz0f, type=sell, price=8000.00, amount=0.00320000, created_datetime=2016-04-22 15:41:00)
+Order(order_id=whtyptv0f348fajdydoswcf6cj20d0kahd97647l7ctnnd1lrpdn2suebwfpxz0f, type=sell, price=8000.00, amount=0.00320000, created_datetime=2016-04-22 15:41:00)
 
 ```
 
@@ -229,7 +230,7 @@ Order(order_id=0zx3f7b8k5jrx1vj123y4nfkd9sguihvhfywm957epycqtvsvzq0m6k0fdgavy5d,
 ```python
 # Gets a Bitcoin deposit address to fund your account
 >>> api.btc_deposit_address()
->>> u'3CEWgs1goBbafUoThjWff4oX4wQKfxqpeV'
+u'3CEWgs1goBbafUoThjWff4oX4wQKfxqpeV'
 # Returns a Bitcoin address
 ```
 

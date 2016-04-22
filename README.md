@@ -19,7 +19,7 @@ A python wrapper for the [Bitso API](https://bitso.com/api_info/)
 ```
 
 
-## Public calls (no API authorisation needed) ##
+## Public calls ##
 
 ### Ticker ###
 
@@ -98,7 +98,7 @@ A python wrapper for the [Bitso API](https://bitso.com/api_info/)
 ```
 
 
-## Private calls (authorisation required) ##
+## Private calls ##
 
 Private endpoints are used to manage your account and your orders. These requests must be signed
 with your [Bitso credentials](https://bitso.com/api_info#generating-api-keys) 

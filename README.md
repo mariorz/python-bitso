@@ -273,7 +273,7 @@ ok   # Returns 'ok' on success
 ##         - string
 
 
->>> api.mxn_withdrawal(amount='3500.0', first_names='Satoshi', last_names='Nakamoto', clabe=CLABE, notes_ref=NOTES_REF, numeric_ref='NUMERIC_REF')
+>>> api.mxn_withdrawal(amount='3500.0', first_names='Satoshi', last_names='Nakamoto', clabe=CLABE, notes_ref=NOTES_REF, numeric_ref=NUMERIC_REF)
 ok   # Returns 'ok' on success
 ```
 

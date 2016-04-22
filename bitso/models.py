@@ -188,7 +188,7 @@ class UserTransaction(BaseModel):
             elif param == 'datetime':
                 value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
                 param = 'created_datetime'
-            elif param in ('btc', 'mxn', 'rate'):
+            elif param in ('btc', 'mxn', 'rate', 'btc_mxn'):
                 value = Decimal(value)
             setattr(self, param, value)
 

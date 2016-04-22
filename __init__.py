@@ -1,10 +1,16 @@
 
-import time
-import hmac
+
+
 import hashlib
+import hmac
 import json
+import time
 import requests
+
 from urllib import urlencode
+from decimal import Decimal
+from datetime import datetime
+
 
 class ApiError(Exception):
     pass
@@ -65,6 +71,8 @@ class Api(object):
         if limit:
             parameters['limit'] = limit
         if sort:
+            if not isinstance(sort, basestring) or sort.lower() not in ['asc', 'desc']:
+                 raise ApiClientError({u'message': u"sort is not 'asc' or 'desc' "})
             parameters['sort'] = sort
         if book:
             parameters['book'] = book
@@ -178,7 +186,6 @@ class Api(object):
     def _build_url(self, url, params):
         if params and len(params) > 0:
             url = url+'?'+self._encode_parameters(params)
-        print url
         return url
 
     def _encode_parameters(self, parameters):
@@ -231,38 +238,47 @@ class BaseModel(object):
 class Ticker(BaseModel):
     def __init__(self, **kwargs):
         self._default_params = {
-            'ask': None,
-            'bid': None,
-            'high': None,
-            'last': None,
-            'low': None,
-            'timestamp': None,
-            'vwap': None,
+            'ask': Decimal(kwargs.get('ask')),
+            'bid': Decimal(kwargs.get('bid')),
+            'high': Decimal(kwargs.get('high')),
+            'last': Decimal(kwargs.get('last')),
+            'low': Decimal(kwargs.get('low')),
+            'vwap': Decimal(kwargs.get('vwap')),
+            'timestamp': kwargs.get('timestamp'),
+            'datetime': datetime.fromtimestamp(int(kwargs.get('timestamp'))),
         }
-        for (param, default) in self._default_params.items():
-            setattr(self, param, kwargs.get(param, default))
+        
+        for (param, val) in self._default_params.items():
+            setattr(self, param, val)
 
     def __repr__(self):
-        return "Ticker(ask={ask}, bid={bid}, high={high}, last={last}, low={low}, timestamp={timestamp}, vwaplow={vwap})".format(
+        return "Ticker(ask={ask}, bid={bid}, high={high}, last={last}, low={low}, datetime={datetime}, vwaplow={vwap})".format(
             ask=self.ask,
             bid=self.bid,
             high=self.high,
             low=self.low,
             last=self.last,
             vwap=self.vwap,
-            timestamp=self.timestamp)
+            datetime=self.datetime)
 
             
 class OrderBook(BaseModel):
     def __init__(self, **kwargs):
         self._default_params = {
-            'asks': None,
-            'bids': None,
-            'timestamp': None,
+            'asks': kwargs.get('asks'),
+            'bids': kwargs.get('bids'),
+            'timestamp': kwargs.get('timestamp'),
+            'datetime': datetime.fromtimestamp(int(kwargs.get('timestamp')))
         }
 
-        for (param, default) in self._default_params.items():
-            setattr(self, param, kwargs.get(param, default))
+        for (param, val) in self._default_params.items():
+            if param in ['asks', 'bids']:
+                parsed_asks = []
+                for ask in val:
+                    parsed_asks.append({'price': Decimal(ask[0]), 'amount': Decimal(ask[1])})
+                setattr(self, param, parsed_asks)
+                continue
+            setattr(self, param, val)
 
 
     def __repr__(self):
@@ -275,50 +291,50 @@ class OrderBook(BaseModel):
 class Transaction(BaseModel):
     def __init__(self, **kwargs):
         self._default_params = {
-            'date': None,
-            'amount': None,
-            'side': None,
-            'price': None,
-            'tid': None,
+            'tid': kwargs.get('tid'),
+            'amount': Decimal(kwargs.get('amount')),
+            'price': Decimal(kwargs.get('price')),
+            'side': kwargs.get('side'),
+            'timestamp': kwargs.get('date'),
+            'datetime':  datetime.fromtimestamp(int(kwargs.get('date')))
+
+            
         }
 
-        for (param, default) in self._default_params.items():
-            setattr(self, param, kwargs.get(param, default))
-
+        for (param, val) in self._default_params.items():
+            setattr(self, param, val)
 
     def __repr__(self):
-        return "Ticker(ask={ask}, bid={bid}, high={high}, last={last}, low={low}, timestamp={timestamp}, vwaplow={vwap})".format(
-            ask=self.ask,
-            bid=self.bid,
-            high=self.high,
-            low=self.low,
-            last=self.last,
-            vwap=self.vwap,
-            timestamp=self.timestamp)
+        return "Transaction(tid={tid}, price={price}, amount={amount}, side={side}, datetime={datetime})".format(
+            tid=self.tid,
+            price=self.price,
+            amount=self.amount,
+            side=self.side,
+            datetime=self.datetime)
 
 
 
 class Balance(BaseModel):
     def __init__(self, **kwargs):
         self._default_params = {
-            'btc_available': None,            
-            'btc_balance': None,
-            'btc_reserved': None,
-            'mxn_available': None,
-            'mxn_balance': None,
-            'mxn_reserved': None,
-            'fee': None,
+            'btc_available': Decimal(kwargs.get('btc_available')),            
+            'btc_balance': Decimal(kwargs.get('btc_balance')),
+            'btc_reserved': Decimal(kwargs.get('btc_reserved')),
+            'mxn_available': Decimal(kwargs.get('mxn_available')),
+            'mxn_balance': Decimal(kwargs.get('mxn_balance')),
+            'mxn_reserved': Decimal(kwargs.get('mxn_reserved')),
+            'fee': Decimal(kwargs.get('fee')),
         }
 
-        for (param, default) in self._default_params.items():
-            setattr(self, param, kwargs.get(param, default))
-
+        for (param, val) in self._default_params.items():
+            setattr(self, param, val)
+            
     def __repr__(self):
         return "Balance(btc_available={btc_available}, btc_balance={btc_balance}, btc_reserved={btc_reserved}, mxn_available={mxn_available}, mxn_balance={mxn_balance}, mxn_reserved={mxn_reserved}, fee={fee})".format(
             btc_available=self.btc_available,
             btc_balance=self.btc_balance,
             btc_reserved=self.btc_reserved,
-            mxn_available=self.mxn_avaUsilable,
+            mxn_available=self.mxn_available,
             mxn_balance=self.mxn_balance,
             mxn_reserved=self.mxn_reserved,
             fee=self.fee)
@@ -334,21 +350,23 @@ class UserTransaction(BaseModel):
 
         for (param, value) in kwargs.items():
             if param == 'id':
-                param = 'transaction_id'
+                param = 'tid'
             elif param == 'type':
                 value = self._type_mappings.get(value,value)
             elif param == 'datetime':
-                param = 'created'
+                value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+                param = 'created_datetime'
             setattr(self, param, value)
 
     def __repr__(self):
-        return "UserTransaction(type={tx_type}, created={created})".format(
+        return "UserTransaction(type={tx_type}, created_datetime={created_datetime})".format(
             tx_type=self.type,
-            created=self.created)
+            created_datetime=self.created_datetime)
         
 
 class Order(BaseModel):
     def __init__(self, **kwargs):
+        print kwargs
         self._status_mappings = {
             '-1': 'cancelled',
             '0': 'active',
@@ -363,23 +381,29 @@ class Order(BaseModel):
 
         for (param, value) in kwargs.items():
             if param == 'datetime':
-                param = 'created'
+                param = 'created_datetime'
+                value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+            elif param in ['created', 'updated']:
+                param = param + '_datetime'
+                value = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
             elif param == 'id':
                 param = 'order_id'
             elif param == 'status':
                 value = self._status_mappings.get(value,value)
             elif param == 'type':
                 value = self._type_mappings.get(value,value)
-            elif param == 'price' and float(value) == 0.0:
-                print "value"
-                print value
-                value = None
+            elif param == 'price':
+                if Decimal(value) == 0.0:
+                    value = None
+                value = Decimal(value)
+            elif param == 'amount':
+                value = Decimal(value)
             setattr(self, param, value)
             
     def __repr__(self):
-        return "Order(order_id={order_id}, type={order_type}, price={price}, amount={amount}, created={created})".format(
+        return "Order(order_id={order_id}, type={order_type}, price={price}, amount={amount}, created_datetime={created_datetime})".format(
             order_id=self.order_id,
             order_type=self.type,
             price=self.price,
             amount=self.amount,
-            created=self.created)
+            created_datetime=self.created_datetime)

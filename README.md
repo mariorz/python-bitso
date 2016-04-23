@@ -49,19 +49,19 @@ A python wrapper for the [Bitso API](https://bitso.com/api_info/)
 datetime.datetime(2016, 4, 22, 18, 24, 58)
 >>> ob.bids
 [                  
-        {
-            'price': decimal,   ## Price for bid
-            'amount': decimal   ## Amount bid
-        }, ...
+  {
+    'price': decimal,   ## Price for bid
+    'amount': decimal   ## Amount bid
+   }, ...
 ]
 
 >>> ob.asks
 
 [                   
-        {
-            'price': decimal,   ## Price for ask
-            'amount': decimal   ## Amount asked
-        }, ...
+  {
+    'price': decimal,   ## Price for ask
+    'amount': decimal   ## Amount asked
+   }, ...
 ]
 
 ```
@@ -113,15 +113,6 @@ with your [Bitso credentials](https://bitso.com/api_info#generating-api-keys)
 Decimal('4834.63')
 >>> balance.btc_balance
 Decimal('1.01300152')
-
-
-    'mxn_balance': decimal,     # MXN balance
-    'btc_balance': decimal,     # BTC balance
-    'mxn_reserved': decimal,    # MXN locked in open orders
-    'btc_reserved': decimal,    # BTC locked in open orders
-    'mxn_available': decimal,   # MXN available for trading (balance - reserved)
-    'btc_available': decimal,   # BTC available for trading (balance - reserved)
-    'fee': decimal              # Customer trading fee as a percentag
 
 ```
 

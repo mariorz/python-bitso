@@ -339,7 +339,13 @@ status | String | The order’s status ('cancelled', 'active','partially filled'
 created_datetime | Datetime | The date the order was created | 
 updated_datetime | Datetime | The date the order was last updated (not shown when status = 0) | 
 
+# Notations #
 
+**Major** denotes the cryptocurrency, in our case Bitcoin (BTC).
+
+**Minor** denotes fiat currencies such as Mexican Peso (MXN), etc
+
+An order book is always referred to in the API as “Major_Minor”. For example: “**btc_mxn**”
 
 
 #### Licence ####

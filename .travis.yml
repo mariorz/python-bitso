@@ -1,11 +1,10 @@
 language: python
-python: 
+python:
   - 2.5
   - 2.6
   - 2.7
- install: 
+install:
   - pip install .
   - pip install -q requests
- script: 
+script:
   - python test.py
-  

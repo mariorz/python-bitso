@@ -268,7 +268,7 @@ ok   # Returns 'ok' on success
 The wrapper uses models to represent data structures returned by the Bitso API. The models are:
 
 
-- ### bitso.Ticker
+### bitso.Ticker
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
 ask | Decimal | Lowest sell order | Minor/Major
@@ -282,7 +282,7 @@ datetime | Datetime | Ticker current datetime |
 timestamp | String | Ticker current timestamp | Unix timestamp
 
 
-- ### bitso.OrderBook
+### bitso.OrderBook
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
 asks | List | List of open asks | Minor/Major
@@ -290,8 +290,8 @@ bids | List | List of open bids | Minor/Major
 datetime | Datetime | OrderBook current datetime | 
 timestamp | String | OrderBook current timestamp | Unix timestamp
 
-- ### bitso.Balance
 
+### bitso.Balance
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
 btc_balance | Decimal | BTC balance | BTC
@@ -302,8 +302,8 @@ mxn_available | Decimal | MXN available for trading (balance - reserved) | MXN
 mxn_reserved | Decimal | MXN locked in open orders | MXN
 fee | Decimal | Customer trading fee as a percentage | 
 
-- ### bitso.Transaction
 
+### bitso.Transaction
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
 tid | Long | Transaction ID | 
@@ -314,7 +314,7 @@ datetime | Datetime |
 timestamp | Decimal | MXN balance | Unix timestamp
 
 
-- ### bitso.UserTransaction
+### bitso.UserTransaction
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
 tid | Long | Unique identifier (only for trades) | 
@@ -322,12 +322,11 @@ type | String | Transaction type ('deposit', 'withdrawal', 'trade') |
 order_id | String | A 64 character long hexadecimal string representing the order that was fully or partially filled (only for trades) | 
 rate | Decimal | Price per minor (only for trades) | Minor
 created_datetime | Datetime | Date and time | 
-(minor currency code) | Decimal | The minor currency amount
-| Minor
+(minor currency code) | Decimal | The minor currency amount | Minor
 (major currency code) | Decimal | The major currency amount | Major 
 
 
-- ### bitso.Order
+### bitso.Order
 
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
@@ -336,15 +335,14 @@ type | String | Order Type ('buy','sell') |
 book | String | Which orderbook the order belongs to (not shown when status = 0) | 
 amount | Decimal | The order’s major currency amounts | Major
 price | Decimal | The order’s price | Minor
-status | String | The order’s status ('cancelled', 'active',
-'partially filled', 'complete') | 
+status | String | The order’s status ('cancelled', 'active','partially filled', 'complete') | 
 created_datetime | Datetime | The date the order was created | 
 updated_datetime | Datetime | The date the order was last updated (not shown when status = 0) | 
 
 
 
 
-### Licence ###
+#### Licence ####
 
 The MIT License (MIT)
 

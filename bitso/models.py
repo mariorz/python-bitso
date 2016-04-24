@@ -56,6 +56,7 @@ class Ticker(BaseModel):
             'last': Decimal(kwargs.get('last')),
             'low': Decimal(kwargs.get('low')),
             'vwap': Decimal(kwargs.get('vwap')),
+            'volume': Decimal(kwargs.get('volume')),
             'timestamp': kwargs.get('timestamp'),
             'datetime': datetime.fromtimestamp(int(kwargs.get('timestamp'))),
         }

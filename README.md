@@ -19,7 +19,7 @@ A python wrapper for the [Bitso API](https://bitso.com/api_info/)
 ```
 
 
-## Public calls ##
+# Public calls #
 
 ### Ticker ###
 
@@ -94,7 +94,7 @@ datetime.datetime(2016, 4, 22, 13, 47, 29)
 ```
 
 
-## Private calls ##
+# Private calls #
 
 Private endpoints are used to manage your account and your orders. These requests must be signed
 with your [Bitso credentials](https://bitso.com/api_info#generating-api-keys) 
@@ -348,7 +348,7 @@ updated_datetime | Datetime | The date the order was last updated (not shown whe
 An order book is always referred to in the API as “Major_Minor”. For example: “**btc_mxn**”
 
 
-#### Licence ####
+# Licence #
 
 The MIT License (MIT)
 

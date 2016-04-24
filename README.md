@@ -38,14 +38,14 @@ A python wrapper for the [Bitso API](https://bitso.com/api_info/)
 ### Order Book ###
 
 ```python
-# Public order book
-# Parameters
+## Public order book
+## Parameters
 ## [group = btc_mxn] - Specifies which book to use
 ##                - string
 ## [group = True] - Group orders with the same price
 ##                - boolean
 >>> ob = api.order_book()
->>> ob.datetime  # datetime object
+>>> ob.datetime  
 datetime.datetime(2016, 4, 22, 18, 24, 58)
 >>> ob.bids
 [                  
@@ -69,8 +69,8 @@ datetime.datetime(2016, 4, 22, 18, 24, 58)
 ### Transactions ###
 
 ```python
-# Public transactions
-# Parameters
+## Public transactions
+## Parameters
 ## [book = 'btc_mxn']    - Specifies which book to use
 ##                 - str
 ## [time = 'hour']   - Time frame for transaction export ('hour', 'minute')
@@ -107,7 +107,7 @@ with your [Bitso credentials](https://bitso.com/api_info#generating-api-keys)
 ### Account Balance ###
 
 ```python
-# Your account balance
+## Your account balance
 >>> balance = api.balance()
 >>> balance.mxn_balance
 Decimal('4834.63')
@@ -119,8 +119,8 @@ Decimal('1.01300152')
 ### User Transactions ###
 
 ```python
-# Your transactions
-# Parameters
+## Your transactions
+## Parameters
 ## [offset = 0]    - Skip that many transactions before beginning to return results
 ##                 - int
 ## [limit = 100]   - Limit result to that many transactions
@@ -153,7 +153,7 @@ Decimal('7780.00')
 ### Open Orders ###
 
 ```python
-# Returns a list of the user’s open orders
+## Returns a list of the user’s open orders
 >>> oo = api.open_orders()
 >>> oo
 [Order(order_id=s5ntlud6oupippk8iigw5dazjdxwq5vibjcwdp32ksk9i4h0nyxsc8svlpscuov5, type=buy, price=7000.00, amount=0.01000000, created_datetime=2016-04-22 14:31:10)]
@@ -167,8 +167,8 @@ s5ntlud6oupippk8iigw5dazjdxwq5vibjcwdp32ksl9i4h0nyxsc8svlpscuov5
 ### Cancel Order ###
 
 ```python
-# Cancels an open order
-# Parameters
+## Cancels an open order
+## Parameters
 ## order_id -  A Bitso Order ID.
 ##          - string
 >>> api.cancel_order(ORDER_ID)
@@ -178,7 +178,7 @@ u'true' #on success
 ### Buy Limit Order ###
 
 ```python
-# Places a buy limit order.
+## Places a buy limit order.
 ## amount - Amount of major currency to buy.
 ##        - string
 ## price  - Specified price for the limit order.
@@ -200,7 +200,7 @@ Decimal('0.01000000')
 ### Sell Order ###
 
 ```python
-# Places a sell order (both limit and market orders are available)
+## Places a sell order (both limit and market orders are available)
 ## amount - 
 ##        - string
 ## price  - If supplied, this will place a limit order to sell at the specified price.
@@ -219,17 +219,17 @@ Order(order_id=whtyptv0f348fajdydoswcf6cj20d0kahd97647l7ctnnd1lrpdn2suebwfpxz0f,
 ### Bitcoin Deposit Address ###
 
 ```python
-# Gets a Bitcoin deposit address to fund your account
+## Gets a Bitcoin deposit address to fund your account
 >>> api.btc_deposit_address()
 u'3CEWgs1goBbafUoThjWff4oX4wQKfxqpeV'
-# Returns a Bitcoin address
+## Returns a Bitcoin address
 ```
 
 
 ### Bitcoin Withdrawal ###
 
 ```python
-# Triggers a bitcoin withdrawal from your account
+## Triggers a bitcoin withdrawal from your account
 ## amount  - The amount of BTC to withdraw from your account
 ##         - string
 ## address - The Bitcoin address we will send the amount to
@@ -263,6 +263,84 @@ ok   # Returns 'ok' on success
 >>> api.mxn_withdrawal(amount='3500.0', first_names='Satoshi', last_names='Nakamoto', clabe=CLABE, notes_ref=NOTES_REF, numeric_ref=NUMERIC_REF)
 ok   # Returns 'ok' on success
 ```
+# Models #
+
+The wrapper uses models to represent data structures returned by the Bitso API. The models are:
+
+
+- ### bitso.Ticker
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+ask | Decimal | Lowest sell order | Minor/Major
+bid | Decimal | Highest buy order | Minor/Major
+last | Decimal | Last traded price | Minor/Major
+high | Decimal | Last 24 hours price high | Minor/Major
+low | Decimal | Last 24 hours price low | Minor/Major
+vwap | Decimal | Last 24 hours price high | Minor/Major
+volume | Decimal | Last 24 hours volume | Major
+datetime | Datetime | Ticker current datetime | 
+timestamp | String | Ticker current timestamp | Unix timestamp
+
+
+- ### bitso.OrderBook
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+asks | List | List of open asks | Minor/Major
+bids | List | List of open bids | Minor/Major
+datetime | Datetime | OrderBook current datetime | 
+timestamp | String | OrderBook current timestamp | Unix timestamp
+
+- ### bitso.Balance
+
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+btc_balance | Decimal | BTC balance | BTC
+btc_available | Decimal | BTC available for trading (balance - reserved) | BTC
+btc_reserved | Decimal | BTC locked in open orders | BTC
+mxn_balance | Decimal | MXN balance | MXN
+mxn_available | Decimal | MXN available for trading (balance - reserved) | MXN
+mxn_reserved | Decimal | MXN locked in open orders | MXN
+fee | Decimal | Customer trading fee as a percentage | 
+
+- ### bitso.Transaction
+
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+tid | Long | Transaction ID | 
+amount | Decimal | Major amount transacted | Major
+price | Decimal | Price per unit of major | Minor
+side | Decimal | Indicates the maker order side (maker order is the order that was open on the order book) | 
+datetime | Datetime | 
+timestamp | Decimal | MXN balance | Unix timestamp
+
+
+- ### bitso.UserTransaction
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+tid | Long | Unique identifier (only for trades) | 
+type | String | Transaction type ('deposit', 'withdrawal', 'trade') |
+order_id | String | A 64 character long hexadecimal string representing the order that was fully or partially filled (only for trades) | 
+rate | Decimal | Price per minor (only for trades) | Minor
+created_datetime | Datetime | Date and time | 
+(minor currency code) | Decimal | The minor currency amount
+| Minor
+(major currency code) | Decimal | The major currency amount | Major 
+
+
+- ### bitso.Order
+
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+order_id | String | The Order ID | 
+type | String | Order Type ('buy','sell') | 
+book | String | Which orderbook the order belongs to (not shown when status = 0) | 
+amount | Decimal | The order’s major currency amounts | Major
+price | Decimal | The order’s price | Minor
+status | String | The order’s status ('cancelled', 'active',
+'partially filled', 'complete') | 
+created_datetime | Datetime | The date the order was created | 
+updated_datetime | Datetime | The date the order was last updated (not shown when status = 0) | 
+
 
 
 

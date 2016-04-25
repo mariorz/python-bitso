@@ -39,7 +39,7 @@ from .api import Api
 
 __author__       = 'Mario Romero'
 __email__        = 'mario@romero.fm'
-__version__      = '0.1.3'
+__version__      = '0.1.4'
 __copyright__    = 'Copyright (c) 2016 Mario Romero'
 __license__      = 'The MIT License (MIT)'
  

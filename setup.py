@@ -8,7 +8,7 @@ else:
 
 setup(
     name='python-bitso',
-    version='0.1.3',
+    version='0.1.4',
     author='Mario Romero',
     author_email='mario@romero.fm',
     packages=['bitso', 'tests'],

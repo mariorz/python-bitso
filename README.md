@@ -2,7 +2,7 @@
 
 A python wrapper for the [Bitso API](https://bitso.com/api_info/) 
 
-[![Build Status](https://travis-ci.org/mariorz/python-bitso.svg?branch=master)](https://travis-ci.org/mariorz/python-bitso) 
+[![Build Status](https://travis-ci.org/mariorz/python-bitso.svg?branch=master)](https://travis-ci.org/mariorz/python-bitso) [![Requirements Status](https://requires.io/github/mariorz/python-bitso/requirements.svg?branch=master)](https://requires.io/github/mariorz/python-bitso/requirements/?branch=master) 
 
 # Public API Usage #
 

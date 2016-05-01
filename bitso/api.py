@@ -202,7 +202,7 @@ class Api(object):
         return [UserTransaction._NewFromJsonDict(x) for x in resp]
 
     def open_orders(self, book=None):
-        """"Get a list of the user's open orders
+        """Get a list of the user's open orders
 
         Args:
           book (str, optional):
@@ -220,7 +220,7 @@ class Api(object):
 
 
     def lookup_order(self, order_ids):
-        """"Get a list of details for one or more orders
+        """Get a list of details for one or more orders
 
         Args:
           order_ids (list):
@@ -238,7 +238,7 @@ class Api(object):
         return [Order._NewFromJsonDict(x) for x in resp]
 
     def cancel_order(self, order_id):
-        """"Cancels an open order
+        """Cancels an open order
 
         Args:
           order_id (str):
@@ -254,7 +254,7 @@ class Api(object):
         return resp
 
     def buy(self, amount=None, price=None, book=None):
-        """"Places a buy limit order.
+        """Places a buy limit order.
 
         Args:
           amount (str):
@@ -275,14 +275,15 @@ class Api(object):
         parameters['amount'] = str(amount).encode('utf-8')
         if price is None:
             raise ApiClientError({u'message': u'price not specified.'})
-        parameters['price'] = str(price).encode('utf-8')
+        if price is not None:
+            parameters['price'] = str(price).encode('utf-8')
         parameters['book'] = book
         resp = self._request_url(url, 'POST', params=parameters)
         return Order._NewFromJsonDict(resp) 
 
 
     def sell(self, amount=None, price=None, book=None):
-        """"Places a sell order (both limit and market orders are available)
+        """Places a sell order (both limit and market orders are available)
 
         Args:
           amount (str):
@@ -310,7 +311,7 @@ class Api(object):
 
 
     def btc_deposit_address(self):
-        """"Gets a Bitcoin deposit address to fund your account
+        """Gets a Bitcoin deposit address to fund your account
 
         Args: None
         
@@ -323,7 +324,7 @@ class Api(object):
         return resp
 
     def btc_withdrawal(self, amount, address):
-        """"Triggers a bitcoin withdrawal from your account
+        """Triggers a bitcoin withdrawal from your account
 
         Args:
           amount (str):
@@ -343,7 +344,7 @@ class Api(object):
         return resp
 
     def mxn_withdrawal(self, amount=None, first_names=None, last_names=None, clabe=None, notes_ref=None, numeric_ref=None):
-        """"Triggers a SPEI withdrawal from your account. These withdrawals are
+        """Triggers a SPEI withdrawal from your account. These withdrawals are
         immediate during banking hours (M-F 9:00AM - 5:00PM Mexico City Time).
 
         Args:
@@ -389,7 +390,7 @@ class Api(object):
         return parameters
 
     def _request_url(self, url, verb, params=None):
-        url = self._build_url(url, params)        
+        url = self._build_url(url, params)
         if verb == 'GET':
             try:
                 resp = requests.get(url)

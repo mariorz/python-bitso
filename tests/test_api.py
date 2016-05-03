@@ -290,5 +290,162 @@ class PrivateApiTest(unittest.TestCase):
         self.assertIsInstance(result, bitso.Order)
         
 
+
+    def test_transfer_quote(self):
+        response = FakeResponse(b'''
+        {
+           "quote":{
+              "btc_amount":"0.14965623",
+              "currency":"MXN",
+              "rate":"3340.99",
+              "gross":"500.00",
+              "outlets":{
+                 "sp":{
+                    "id":"sp",
+                    "name":"SPEI Transfer",
+                    "required_fields":[
+                       "recipient_given_names",
+                       "recipient_family_names",
+                       "clabe",
+                       "bank_name"
+                    ],
+                    "minimum_transaction":"500.00",
+                    "maximum_transaction":"2500000.00",
+                    "daily_limit":"10000.00",
+                    "fee":"12.00",
+                    "net":"488.00",
+                    "available":"1",
+                    "verification_level_requirement":"0"
+                 },
+                 "vo":{
+                    "id":"vo",
+                    "name":"Voucher",
+                    "required_fields":[
+                       "email_address"
+                    ],
+                    "minimum_transaction":"25.00",
+                    "maximum_transaction":"9999.00",
+                    "fee":"0.00",
+                    "daily_limit":"0.00",
+                    "net":"500.00",
+                    "available":"1",
+                    "verification_level_requirement":"0"
+                 },
+                 "rp":{
+                    "id":"rp",
+                    "name":"Ripple",
+                    "required_fields":[
+                       "ripple_address"
+                    ],
+                    "minimum_transaction":"0.00",
+                    "maximum_transaction":"10000000.00",
+                    "fee":"5.00",
+                    "daily_limit":"0.00",
+                    "net":"495.00",
+                    "available":"1",
+                "verification_level_requirement":"0"
+             },
+             "pm":{
+                "id":"pm",
+                "name":"Pademobile",
+                "required_fields":[
+                   "phone_number"
+                ],
+                "minimum_transaction":"1.00",
+                "maximum_transaction":"1000000.00",
+                "fee":"0.00",
+                "daily_limit":"0.00",
+                "net":"500.00",
+                "available":"1",
+                "verification_level_requirement":"0"
+             },
+             "bw":{
+                "id":"bw",
+                "name":"Bank Wire",
+                "required_fields":[
+                   "recipient_full_name",
+                   "account_holder_address",
+                   "bank_name",
+                   "bank_address",
+                   "account_number",
+                   "swift",
+                   "other_instructions"
+                ],
+                "minimum_transaction":"1000.00",
+                "maximum_transaction":"2500000.00",
+                "daily_limit":"2500000.00",
+                "fee":"500.00",
+                "net":"0.00",
+                "available":"1",
+                "verification_level_requirement":"0"
+             }
+          },
+          "timestamp":"1425101044",
+          "expires_epoch":"1425101104"
+       },
+       "success":true
+        }''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.api.transfer_quote(amount='0.14965623', currency='MXN')
+        self.assertIsInstance(result, bitso.TransactionQuote)
+        self.assertEqual(result.success, True)
+        self.assertEqual(result.btc_amount, Decimal('0.14965623'))
+        self.assertEqual(result.currency, 'MXN')
+        self.assertEqual(result.rate, Decimal('3340.99'))
+        self.assertEqual(result.gross, Decimal('500.00'))
+        self.assertIsInstance(result.outlets, dict)
+        self.assertEqual(result.outlets['sp']['minimum_transaction'], Decimal('500.00'))
+        self.assertEqual(result.outlets['sp']['maximum_transaction'], Decimal('2500000.00'))
+        self.assertEqual(result.outlets['bw']['daily_limit'], Decimal('2500000.00'))
+        self.assertEqual(result.outlets['bw']['fee'], Decimal('500.00'))
+        self.assertEqual(result.outlets['bw']['net'], Decimal('0.00'))
+        self.assertEqual(result.outlets['bw']['available'], True)
+
+
+    def test_create_transfer(self):
+        response = FakeResponse(b'''
+        {
+            "order":{
+              "btc_amount":"0.14965623",
+              "btc_pending":"0",
+              "btc_received":"0",
+              "confirmation_code":"9b2a4",
+              "created_at":"1425101044",
+              "currency":"MXN",
+              "currency_amount":"0",
+              "currency_fees":"0",
+              "currency_settled":"0",
+              "expires_epoch":1425101104,
+              "fields":{
+                 "phone_number":"5554181042"
+              },
+              "id":"9b2a431b98597312e99cbff1ba432cbf",
+              "payment_outlet_id":"pm",
+              "qr_img_uri":"https:\/\/chart.googleapis.com\/chart?chl=bitcoin%3AmgKZfNdFJgztvfvhEaGgMTQRQ2iHCadHGa%3Famount%3D0.14965623&chs=400x400&cht=qr&choe=UTF-8&chld=L%7C0",
+              "user_uri":"https:\/\/api.bitso.com\/v2\/transfer\/9b2a431b98597312e99cbff1ba432cbf",
+              "wallet_address":"mgKZfNdFJgztvfvhEaGgMTQRQ2iHCadHGa"
+           },
+           "success":true
+        }''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.api.transfer_create(btc_amount='0.14965623',
+                                   currency='MXN',
+                                   rate='7585.20',
+                                   payment_outlet='pm')
+        self.assertIsInstance(result, bitso.TransactionOrder)
+        self.assertEqual(result.success, True)
+        self.assertEqual(result.btc_amount, Decimal('0.14965623'))
+
+        self.assertEqual(result.btc_pending, Decimal('0'))
+        self.assertEqual(result.btc_received, Decimal('0.0'))
+        self.assertEqual(result.confirmation_code, '9b2a4')
+        self.assertEqual(result.currency, 'MXN')
+        self.assertEqual(result.fields['phone_number'], '5554181042')
+        self.assertEqual(result.btc_amount, Decimal('0.14965623'))
+        self.assertEqual(result.wallet_address, 'mgKZfNdFJgztvfvhEaGgMTQRQ2iHCadHGa')
+        
+
+        
+        
 if __name__ == '__main__':
     unittest.main()

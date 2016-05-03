@@ -75,6 +75,7 @@ class PublicApiTest(unittest.TestCase):
         }''')
         with mock.patch('requests.get', return_value=response):
             ticker = self.api.ticker()
+        print ticker
         self.assertIsInstance(ticker, bitso.Ticker)
 
     def test_order_book(self):
@@ -92,6 +93,7 @@ class PublicApiTest(unittest.TestCase):
             "timestamp": "1447348416"}''')
         with mock.patch('requests.get', return_value=response):
             result = self.api.order_book(group=True)
+        print result
         self.assertIsInstance(result, bitso.OrderBook)
         self.assertIsInstance(result.asks, list)
         self.assertEqual(len(result.asks), 3)
@@ -124,6 +126,7 @@ class PublicApiTest(unittest.TestCase):
         ]''')
         with mock.patch('requests.get', return_value=response):
             txs = self.api.transactions()
+        print txs
         self.assertIsInstance(txs, list)
         self.assertEqual(len(txs), 2)
         self.assertEqual(txs[0].price, Decimal("5545.01"))
@@ -147,6 +150,7 @@ class PrivateApiTest(unittest.TestCase):
          "btc_reserved": "0.00000000"}''')
         with mock.patch('requests.post', return_value=response):
             result = self.api.balance()
+        print result
         self.assertIsInstance(result, bitso.Balance)
         self.assertEqual(result.btc_available, Decimal("46.67902107"))
         self.assertEqual(result.mxn_available, Decimal("26864.57"))
@@ -180,6 +184,7 @@ class PrivateApiTest(unittest.TestCase):
         ] ''')
         with mock.patch('requests.post', return_value=response):
             txs = self.api.user_transactions()
+        print txs
         self.assertIsInstance(txs, list)
         self.assertEqual(len(txs), 3)
         self.assertEqual(txs[0].btc, Decimal("0.48650929"))
@@ -223,6 +228,7 @@ class PrivateApiTest(unittest.TestCase):
         ] ''')
         with mock.patch('requests.post', return_value=response):
             result = self.api.open_orders()
+        print result
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 3)
         self.assertEqual(result[0].amount, Decimal("0.01000000"))
@@ -251,6 +257,7 @@ class PrivateApiTest(unittest.TestCase):
         }] ''')
         with mock.patch('requests.post', return_value=response):
             result = self.api.open_orders()
+        print result
         self.assertIsInstance(result, list)
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0].amount, Decimal("0.01000000"))
@@ -287,6 +294,7 @@ class PrivateApiTest(unittest.TestCase):
             }''')
         with mock.patch('requests.post', return_value=response):
             result = self.api.sell('.01', '10000')
+        print result
         self.assertIsInstance(result, bitso.Order)
         
 
@@ -387,6 +395,7 @@ class PrivateApiTest(unittest.TestCase):
         }''')
         with mock.patch('requests.post', return_value=response):
             result = self.api.transfer_quote(amount='0.14965623', currency='MXN')
+        print result
         self.assertIsInstance(result, bitso.TransactionQuote)
         self.assertEqual(result.success, True)
         self.assertEqual(result.btc_amount, Decimal('0.14965623'))
@@ -432,6 +441,7 @@ class PrivateApiTest(unittest.TestCase):
                                    currency='MXN',
                                    rate='7585.20',
                                    payment_outlet='pm')
+        print result
         self.assertIsInstance(result, bitso.TransactionOrder)
         self.assertEqual(result.success, True)
         self.assertEqual(result.btc_amount, Decimal('0.14965623'))

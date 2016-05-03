@@ -248,3 +248,90 @@ class Order(BaseModel):
             price=self.price,
             amount=self.amount,
             created_datetime=self.created_datetime)
+
+
+
+
+class OutletDictionary(dict):
+    
+    """ A Dictionary subclass to represet Bitso Transfer Outlets with parsed decimals. """
+
+    def __init__(self, data):
+        _decimal_keys = ('minimum_transaction',
+                          'maximum_transaction',
+                          'daily_limit',
+                          'fee',
+                          'net')
+
+        for k, v in data.items():
+            if isinstance(v, dict):
+                self[k] = OutletDictionary(v)
+            else:
+                if isinstance(v, basestring) and k in _decimal_keys:
+                    v = Decimal(v)
+                elif k == 'available':
+                    if v=='1':
+                        v = True
+                    else:
+                        v = False
+                self[k] = v
+                    
+                
+class TransactionQuote(BaseModel):
+
+    """ A class that represents a Bitso Transaction Quote. """
+
+        
+    def __init__(self, **kwargs):
+        setattr(self, 'success', kwargs['success'])
+
+        for (param, value) in kwargs['quote'].items():
+            if param=='outlets':
+                setattr(self, param, OutletDictionary(value))
+            else:
+                setattr(self, param, value)
+        setattr(self, 'created_at', datetime.fromtimestamp(int(kwargs['quote'].get('timestamp'))))
+        setattr(self, 'expires_at', datetime.fromtimestamp(int(kwargs['quote'].get('expires_epoch'))))
+
+        
+        setattr(self, 'btc_amount', Decimal(self.btc_amount))
+        setattr(self, 'gross', Decimal(self.gross))
+        setattr(self, 'rate', Decimal(self.rate))
+        
+
+    def __repr__(self):
+        return "TransactionQuote(btc_amount={btc_amount}, currency={currency}, rate={rate}, datetime={datetime}, gross={gross})".format(
+            btc_amount=self.btc_amount,
+            currency=self.currency,
+            rate=self.rate,
+            gross= self.gross,
+            datetime=self.datetime)
+
+
+
+               
+class TransactionOrder(BaseModel):
+
+    """ A class that represents a Bitso Transaction Quote. """
+
+        
+    def __init__(self, **kwargs):
+        setattr(self, 'btc_amount', None)
+        setattr(self, 'success', kwargs['success'])
+
+        for (param, value) in kwargs['order'].items():
+            setattr(self, param, value)
+        setattr(self, 'created_at', datetime.fromtimestamp(int(kwargs['order'].get('created_at'))))
+        setattr(self, 'expires_at', datetime.fromtimestamp(int(kwargs['order'].get('expires_epoch'))))
+        if self.btc_amount:
+            setattr(self, 'btc_amount', Decimal(self.btc_amount))
+        if self.btc_pending:
+            setattr(self, 'btc_pending', Decimal(self.btc_pending))
+        if self.btc_received:
+            setattr(self, 'btc_received', Decimal(self.btc_received))
+        if self.currency_amount:
+            setattr(self, 'currency_amount', Decimal(self.currency_amount))
+        if self.currency_fees:
+            setattr(self, 'currency_fees', Decimal(self.currency_fees))
+        if self.currency_settled:
+            setattr(self, 'currency_settled', Decimal(self.currency_settled))

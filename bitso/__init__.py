@@ -32,7 +32,9 @@ from .models import (
     Balance, 
     Transaction,
     UserTransaction,
-    Order
+    Order,
+    TransactionQuote,
+    TransactionOrder
 )
 
 from .api import Api  

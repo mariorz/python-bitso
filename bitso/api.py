@@ -34,7 +34,7 @@ from urllib import urlencode
 
 
 from bitso import (ApiError, ApiClientError, Ticker, OrderBook, Balance, Transaction,
-                     UserTransaction, Order)
+                     UserTransaction, Order, TransactionQuote, TransactionOrder)
 
 
 class Api(object):
@@ -379,6 +379,137 @@ class Api(object):
         return resp
 
 
+    def transfer_quote(self, amount=None, btc_amount=None, currency=None):
+        """Get a quote for a transfer for various Bitso Outlets.
+
+        Args:
+          btc_amount (str):
+            Mutually exclusive with amount. Either this, or amount should
+            be present in the request. The total amount in Bitcoins, as
+            provided by the user. NOTE: The amount is in BTC format
+            (900mbtc = .9 BTC).
+          amount (str):
+            Mutually exclusive with btc_amount. Either this, or btc_amount
+            should be present in the request. The total amount in Fiat currency.
+            Use this if you prefer specifying amounts in fiat instead of BTC.
+          currency (str):
+            An ISO 4217 fiat currency symbol (ie, "MXN"). If btc_amount is
+            provided instead of amount, this is the currency to which the BTC
+            price will be converted into. Otherwise, if amount is specified
+            instead of btc_amount, this is the currency of the specified amount.
+        
+        Returns:
+          A bitso.TransactionQuote instance.         
+        """
+        
+        if currency is None:
+            raise ApiClientError({u'message': u"Currency symbol not specified"})
+        if amount is None and btc_amount is None:
+            raise ApiClientError({u'message': u"Neither 'amount' nor 'btc_amount' are specified"})
+        if amount is not None and btc_amount is not None:
+            raise ApiClientError({u'message': u"'amount' and 'btc_amount' are mutually exclusive. Pick one"})
+        
+        url = '%s/transfer_quote' % self.base_url
+        parameters = self._build_auth_payload()
+        if amount:
+            parameters['amount'] = str(amount).encode('utf-8')
+        elif btc_amount:
+            parameters['btc_amount'] = str(btc_amount).encode('utf-8')
+
+        parameters['currency'] = currency
+        parameters['full'] = True
+        resp = self._request_url(url, 'POST', params=parameters)
+        return TransactionQuote._NewFromJsonDict(resp) 
+
+
+
+    def transfer_create(self,
+                        amount=None,
+                        btc_amount=None,
+                        currency=None,
+                        rate = None,
+                        payment_outlet=None,
+                        **kwargs):
+        """Request a currency transfer using quoted Bitso transer outlet
+
+        Args:
+          btc_amount (str):
+            Mutually exclusive with amount. Either this, or amount should
+            be present in the request. The total amount in Bitcoins, as
+            provided by the user. NOTE: The amount is in BTC format
+            (900mbtc = .9 BTC).
+          amount (str):
+            Mutually exclusive with btc_amount. Either this, or btc_amount
+            should be present in the request. The total amount in Fiat currency.
+            Use this if you prefer specifying amounts in fiat instead of BTC.
+          currency (str):
+            An ISO 4217 fiat currency symbol (ie, "MXN"). If btc_amount is
+            provided instead of amount, this is the currency to which the BTC
+            price will be converted into. Otherwise, if amount is specified
+            instead of btc_amount, this is the currency of the specified amount.
+          rate (str):
+            This is the rate (e.g. BTC/MXN), as acquired from the
+            transfer_quote method. You must request a quote in this way before
+            creating a transfer.
+          payment_outlet (str):
+            The outlet_id as provided by quote method. 
+          required fields parameters: (str):
+            Each of the other 'required_fields', as stipulated in the TransferQuote
+            for the chosen payment_outlet.
+
+        
+        Returns:
+          A bitso.TransactionQuote instance.         
+        """
+        
+
+        if currency is None:
+            raise ApiClientError({u'message': u"'currency' not specified"})
+        if amount is None and btc_amount is None:
+            raise ApiClientError({u'message': u"Neither 'amount' nor 'btc_amount' are specified"})
+        if amount is not None and btc_amount is not None:
+            raise ApiClientError({u'message': u"'amount' and 'btc_amount' are mutually exclusive. Pick one"})
+        if rate is None:
+            raise ApiClientError({u'message': u"'rate' not specified"})
+        if payment_outlet is None:
+            raise ApiClientError({u'message': u"'payment_outlet' not specified"})
+
+
+        url = '%s/transfer_create' % self.base_url
+        parameters = self._build_auth_payload()
+        if amount:
+            parameters['amount'] = str(amount).encode('utf-8')
+        elif btc_amount:
+            parameters['btc_amount'] = str(btc_amount).encode('utf-8')
+
+        parameters['currency'] = currency
+        parameters['rate'] = str(rate).encode('utf-8')
+        parameters['payment_outlet'] = payment_outlet
+        for k, v in kwargs.iteritems():
+            parameters[k] = str(v).encode('utf-8')
+        resp = self._request_url(url, 'POST', params=parameters)
+        return TransactionOrder._NewFromJsonDict(resp) 
+
+             
+    def transfer_status(self, transfer_id):
+        """Request status for a transfer order 
+
+        Args:
+          transfer_id (str):
+            Bitso Transfer Order ID (As returned by transfer_create
+            method.
+
+        """
+
+        
+        if transfer_id is None:
+            raise ApiClientError({u'message': u"'transfer_id' not specified"})
+        url = '%s/transfer/%s' % (self.base_url, transfer_id)
+        parameters = self._build_auth_payload()
+        resp = self._request_url(url, 'GET', params=parameters)
+        return TransactionOrder._NewFromJsonDict(resp)
+
+        
     def _build_auth_payload(self):
         parameters = {}
         parameters['key'] = self.key

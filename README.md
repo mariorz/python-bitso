@@ -494,23 +494,23 @@ success | Bool | quote generated successfully |
 
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
-btc_amount | Decimal | The total amount in Bitcoins | Major
-btc_pending | Decimal |  | Major
-btc_received | Decimal | | Major
+btc_amount | Decimal | The total amount in BTC | BTC
+btc_pending | Decimal | Unconfirmed BTC, seen by Bitso servers  | BTC
+btc_received | Decimal | Confirmed BTC seen by Bitso servers | BTC
 confirmation_code | String | | 
 currency | String | An ISO 4217 fiat currency symbol (ie, “MXN”). | 
 currency_amount | Decimal | | 
 currency_settled | Decimal | | 
 currency_fees | Decimal | | 
-fields | Dictionary | | 
+fields | Dictionary | Required fields for Pyament Outlet | 
 created_at | Datetime | The date the transfer was created | 
 expires_at | Datetime | The date the transfer order will expire | 
 id | String | Transfer Order ID | 
-payment_outlet_id | String | | 
-qr_img_uri | String | | 
-user_uri | String | | 
-wallet_address | | 
-success | Bool | | 
+payment_outlet_id | String | Payment Outlet ID | 
+qr_img_uri | String | Bitcoin payment QR Code URI | 
+user_uri | String | Transfer Order URI | 
+wallet_address | Bitcoin address you will send BTC to | 
+success | Bool | Response Success | 
 
 # Notations #
 

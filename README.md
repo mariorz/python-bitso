@@ -475,6 +475,43 @@ status | String | The order’s status ('cancelled', 'active','partially filled'
 created_datetime | Datetime | The date the order was created | 
 updated_datetime | Datetime | The date the order was last updated (not shown when status = 0) | 
 
+
+### bitso.TransactionQuote
+
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+btc_amount | Decimal | The total amount in Bitcoins | Major
+currency | String | An ISO 4217 fiat currency symbol (ie, “MXN”). | 
+gross | Decimal |  | 
+rate | Decimal | This major/manor rate (e.g. BTC/MXN) | 
+outlets | Dictionary | Dictionary of Bitso Outlet options | 
+created_at | Datetime | The date the quote was created | 
+expires_at | Datetime | The date the quote will expire | 
+success | Bool | quote generated successfully | 
+
+
+### bitso.TransactionOrder
+
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+btc_amount | Decimal | The total amount in Bitcoins | Major
+btc_pending | Decimal |  | Major
+btc_received | Decimal | | Major
+confirmation_code | String | | 
+currency | String | An ISO 4217 fiat currency symbol (ie, “MXN”). | 
+currency_amount | Decimal | | 
+currency_settled | Decimal | | 
+currency_fees | Decimal | | 
+fields | Dictionary | | 
+created_at | Datetime | The date the transfer was created | 
+expires_at | Datetime | The date the transfer order will expire | 
+id | String | Transfer Order ID | 
+payment_outlet_id | String | | 
+qr_img_uri | String | | 
+user_uri | String | | 
+wallet_address | | 
+success | Bool | | 
+
 # Notations #
 
 **Major** denotes the cryptocurrency, in our case Bitcoin (BTC).

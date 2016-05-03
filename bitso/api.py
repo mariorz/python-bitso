@@ -343,6 +343,27 @@ class Api(object):
         resp = self._request_url(url, 'POST', params=parameters)
         return resp
 
+    def ripple_withdrawal(self, amount, address):
+        """Triggers a ripple withdrawal from your account
+
+        Args:
+          amount (str):
+            The amount of BTC to withdraw from your account
+          address (str):
+            The ripple address to send the amount to
+        
+        Returns:
+          ok      
+        """
+
+        url = '%s/ripple_withdrawal' % self.base_url
+        parameters = self._build_auth_payload()
+        parameters['amount'] = str(amount).encode('utf-8')
+        parameters['address'] = address
+        resp = self._request_url(url, 'POST', params=parameters)
+        return resp
+
+    
     def mxn_withdrawal(self, amount=None, first_names=None, last_names=None, clabe=None, notes_ref=None, numeric_ref=None):
         """Triggers a SPEI withdrawal from your account. These withdrawals are
         immediate during banking hours (M-F 9:00AM - 5:00PM Mexico City Time).

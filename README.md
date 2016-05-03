@@ -282,7 +282,7 @@ ok   # Returns 'ok' on success
 
 # Transfer API #
 
-Access to this API is available on request, and not enabled by default. Users won’t be able to use this API unless Bitso has enabled it on their account. [API Docs](https://bitso.com/api_info/?shell#transfer-api5) 
+**Access to this API is available on request, and not enabled by default. Users won’t be able to use this API unless Bitso has enabled it on their account. [API Docs](https://bitso.com/api_info/?shell#transfer-api5)**
 
 Bitso’s powerful Transfer API allows for simple integration for routing Bitcoin payments directly through to a choice of Mexican Peso end-points.
 

@@ -3,3 +3,4 @@ v0.1.1, 2016-04-24 -- Initial python package
 v0.1.2, 2016-04-24 -- adds setup.cfg for package distribution
 v0.1.3, 2016-04-24 -- edits setup.py for package distribution
 v0.1.4, 2016-04-24 -- more files for package distribution
+v0.1.5, 2016-05-02 -- Full Private API/Transfer API endpoint coverage

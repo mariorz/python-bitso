@@ -298,14 +298,15 @@ class TransactionQuote(BaseModel):
         setattr(self, 'gross', Decimal(self.gross))
         setattr(self, 'rate', Decimal(self.rate))
         
-
+        
     def __repr__(self):
-        return "TransactionQuote(btc_amount={btc_amount}, currency={currency}, rate={rate}, datetime={datetime}, gross={gross})".format(
+        return "TransactionQuote(btc_amount={btc_amount}, currency={currency}, rate={rate}, created_at={created_at}, expires_at={expires_at}, gross={gross})".format(
             btc_amount=self.btc_amount,
             currency=self.currency,
             rate=self.rate,
             gross= self.gross,
-            datetime=self.datetime)
+            created_at=self.created_at,
+            expires_at=self.expires_at)
 
 
 

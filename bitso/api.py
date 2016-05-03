@@ -483,7 +483,7 @@ class Api(object):
           A bitso.TransactionQuote instance.         
         """
         
-
+        
         if currency is None:
             raise ApiClientError({u'message': u"'currency' not specified"})
         if amount is None and btc_amount is None:

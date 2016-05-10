@@ -397,11 +397,78 @@ u'3LiLpKyfXJmeDcD5ABGtmHGjkxnZTHnBxv'}
 u'confirming'
 
 ```
+# Websocket API #
+
+WebSocket is a protocol providing full-duplex communication channels over a single TCP connection. [Bitso's Websocket API](https://bitso.com/api_info/?shell#websocket-api) allows a continuous connection that will receive orders according to the client's subscribed channels.
+
+#### Available Channels: ####
++ **'trades':** will send updates on each new registered trade.
++ **'diff-orders':** will send across any modifications to the order book. Specifically, any state changes in existing orders (including orders not in the top 20), and any new orders.
++ **'orders':** maintains an up-to-date list of the top 20 asks and the top 20 bids, new updates are sent across the channel whenever there is a change in either top 20.
+
+#### Basic Example ####
+Prints every trade.
+```python
+from bitso import websocket
+
+
+class BasicBitsoListener(websocket.Listener):
+    def on_connect(self):
+        print "Connected"
+        
+    def on_update(self, data):
+        for obj in data.updates:
+            print obj
+        
+if __name__ == '__main__':
+    listener = BasicBitsoListener()
+    client = websocket.Client(listener)
+    channels = ['trades']
+    client.connect(channels)
+
+```
+
+```shell
+> python examples/ws_trades.py
+Connected
+TradeUpdate(tx_id=96093, amount=0.00296048, rate=8444.56,value=25)
+TradeUpdate(tx_id=96094, amount=0.0568058, rate=8444.56,value=479.7)
+TradeUpdate(tx_id=96095, amount=0.45721742, rate=8444.56,value=3861)
+TradeUpdate(tx_id=96096, amount=1.25176796, rate=8335.88,value=10434.58)
+TradeUpdate(tx_id=96097, amount=0.75948406, rate=8335.83,value=6330.93)
+TradeUpdate(tx_id=96098, amount=0.38027314, rate=8334.31,value=3169.31)
+TradeUpdate(tx_id=96099, amount=0.54340182, rate=8329.95,value=4526.5)
+TradeUpdate(tx_id=96100, amount=0.44632784, rate=8323.59,value=3715.04)
+TradeUpdate(tx_id=96101, amount=0.03216174, rate=8322.31,value=267.65)
+TradeUpdate(tx_id=96102, amount=2.92387591, rate=8318.13,value=24321.17)
+TradeUpdate(tx_id=96103, amount=0.27482146, rate=8313.96,value=2284.85)
+TradeUpdate(tx_id=96104, amount=1.33065393, rate=8312,value=11060.39)
+TradeUpdate(tx_id=96105, amount=0.70166614, rate=8310.66,value=5831.3)
+TradeUpdate(tx_id=96106, amount=0.11416146, rate=8434.37,value=962.88)
+```
+
+#### Advanced Example ####
+Gets a copy of the order book via the rest API once, and keeps it up to date using the **'diff-orders'** channel. Logs every order, spread update, or trade.
+
+See [examples/livebookexample.py](https://github.com/mariorz/python-bitso/blob/master/examples/livebookexample.py)
+
+```shell
+> python examples/livebookexample.py
+2016-05-09 20:17:32,232 - INFO - Starting new HTTPS connection (1): bitso.com
+2016-05-09 20:17:33,118 - INFO - Order Book Fetched. Best ask: 8434.3700, Best bid: 8351.3000, Spread: 83.0700
+2016-05-09 20:17:33,589 - INFO - Websocket Connection Established
+2016-05-09 20:17:33,711 - INFO - Best ask: 8434.3700, Best bid: 8351.3000, Spread: 83.0700
+2016-05-09 20:22:30,301 - INFO - New Order. ask: 0.0000 @ 8434.3700 = 0.0000
+2016-05-09 20:22:30,306 - INFO - Removed price level at: 8434.3700
+2016-05-09 20:22:30,306 - INFO - Best ask: 8440.0000, Best bid: 8351.3000, Spread: 88.7000
+2016-05-09 20:22:31,021 - INFO - New Order. ask: 0.1000 @ 8492.9700 = 849.2900
+2016-05-09 20:22:31,022 - INFO - Best ask: 8440.0000, Best bid: 8351.3000, Spread: 88.7000
+```
 
 
 # Models #
 
-The wrapper uses models to represent data structures returned by the Bitso API. The models are:
+The wrapper uses models to represent data structures returned by the Bitso API. 
 
 
 ### bitso.Ticker

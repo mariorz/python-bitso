@@ -286,7 +286,7 @@ ok   # Returns 'ok' on success
 
 Bitso’s powerful Transfer API allows for simple integration for routing Bitcoin payments directly through to a choice of Mexican Peso end-points.
 
-The workflow breaks down in the following steps:
+The workflow is as follows:
 
 ```python
 ## Request quote

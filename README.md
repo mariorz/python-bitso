@@ -233,9 +233,22 @@ u'3CEWgs1goBbafUoThjWff4oX4wQKfxqpeV'
 ## Triggers a bitcoin withdrawal from your account
 ## amount  - The amount of BTC to withdraw from your account
 ##         - string
-## address - The Bitcoin address we will send the amount to
+## address - The Bitcoin address to send the amount to
 ##         - string
->>> api.bitcoin_withdrawal('1.10', ''CEWgs1goBbafUoThjWff4oX4wQKfxqpeV')
+>>> api.bitcoin_withdrawal('1.10', '1TVXn5ajmMQEbkiYNobgHVutVtMWcNZGV')
+ok   # Returns 'ok' on success
+```
+
+
+### Ripple Withdrawal ###
+
+```python
+## Triggers a ripple withdrawal from your account
+## amount  - The amount of BTC to withdraw from your account
+##         - string
+## address - The ripple address to send the amount to
+##         - string
+>>> api.ripple_withdrawal('1.10', 'rG1QQv2nh2gr7RCZ1P8YYcBUKCCN633jCn')
 ok   # Returns 'ok' on success
 ```
 
@@ -264,6 +277,128 @@ ok   # Returns 'ok' on success
 >>> api.mxn_withdrawal(amount='3500.0', first_names='Satoshi', last_names='Nakamoto', clabe=CLABE, notes_ref=NOTES_REF, numeric_ref=NUMERIC_REF)
 ok   # Returns 'ok' on success
 ```
+
+
+
+# Transfer API #
+
+**Access to this API is available on request, and not enabled by default. Users won’t be able to use this API unless Bitso has enabled it on their account. [API Docs](https://bitso.com/api_info/?shell#transfer-api5)**
+
+Bitso’s powerful Transfer API allows for simple integration for routing Bitcoin payments directly through to a choice of Mexican Peso end-points.
+
+The workflow breaks down in the following steps:
+
+```python
+## Request quote
+>>> quote = api.transfer_quote(amount='25.0', currency='MXN')
+## Create transfer using quote
+>>> transfer = api.transfer_create(amount='25.0', currency='MXN', rate=quote.rate, payment_outlet='vo', email_address='mario@ret.io', recipient_given_name='mario romero')
+## Send bitcoins to address given
+>>> print transfer.wallet_address
+## Check Transfer status, after 1 confirmation, pesos are delivered
+>>> print api.transfer_status(transfer.id).status
+u'confirming'
+```
+
+### Get Transfer Quote ###
+
+```python
+## Get a quote for a transfer for various Bitso Outlets.
+##
+## btc_amount  - Mutually exclusive with amount. Either this, or amount should
+##               be present in the request. The total amount in Bitcoins, as
+##               provided by the user. NOTE: The amount is in BTC format
+##               (900mbtc = .9 BTC).
+##         - string
+## amount  - Mutually exclusive with btc_amount. Either this, or btc_amount
+##           should be present in the request. The total amount in Fiat currency.
+##           Use this if you prefer specifying amounts in fiat instead of BTC.
+##         - string
+## currency - An ISO 4217 fiat currency symbol (ie, "MXN"). If btc_amount is
+##            provided instead of amount, this is the currency to which the BTC
+##            price will be converted into. Otherwise, if amount is specified
+##            instead of btc_amount, this is the currency of the specified amount.
+##         - string
+
+>>> quote = api.transfer_quote(amount='25.0', currency='MXN')
+>>> print quote
+TransactionQuote(btc_amount=0.00328834, currency=MXN, rate=7602.60, created_at=2016-05-03 00:33:06, expires_at=2016-05-03 00:34:06, gross=25.00)
+>>> quote.btc_amount
+Decimal('0.00328834')
+>>> quote.outlets.keys()
+[u'sp', u'rp', u'vo', u'bw', u'pm']
+>>> quote.outlets['vo']
+{u'available': True,
+ u'daily_limit': Decimal('0.00'),
+ u'fee': Decimal('0.00'),
+ u'id': u'vo',
+ u'maximum_transaction': Decimal('9999.00'),
+ u'minimum_transaction': Decimal('25.00'),
+ u'name': u'Voucher',
+ u'net': Decimal('25.00'),
+ u'optional_fields': [],
+ u'required_fields': {u'email_address': {u'id': u'email_address',
+   u'name': u'Email Address'},
+  u'recipient_given_name': {u'id': u'recipient_given_name', u'name': u''}},
+ u'verification_level_requirement': u'0'}
+
+```
+
+### Create Transfer ###
+
+```python
+## Get a quote for a transfer for various Bitso Outlets.
+##
+## btc_amount  - Mutually exclusive with amount. Either this, or amount should
+##               be present in the request. The total amount in Bitcoins, as
+##               provided by the user. NOTE: The amount is in BTC format
+##               (900mbtc = .9 BTC).
+##         - string
+## amount  - Mutually exclusive with btc_amount. Either this, or btc_amount
+##           should be present in the request. The total amount in Fiat currency.
+##           Use this if you prefer specifying amounts in fiat instead of BTC.
+##         - string
+## currency - An ISO 4217 fiat currency symbol (ie, "MXN"). If btc_amount is
+##            provided instead of amount, this is the currency to which the BTC
+##            price will be converted into. Otherwise, if amount is specified
+##            instead of btc_amount, this is the currency of the specified amount.
+##         - string
+## rate - This is the rate (e.g. BTC/MXN), as acquired from the
+##        transfer_quote method. You must request a quote in this way before
+##        creating a transfer.
+##      - string
+## payment_outlet - The outlet_id as provided by quote method.
+##      - string
+## required fields parameters - Each of the other 'required_fields', 
+##                              as stipulated in the TransferQuote for the chosen payment_outlet.
+##      - string
+
+>>> transfer = api.transfer_create(amount='25.0', currency='MXN', rate=quote.rate, payment_outlet='vo', email_address='satoshin@gmx.com', recipient_given_name='satoshi nakamoto')
+>>> print transfer
+TransactionQuote(btc_amount=0.00328834, currency=MXN, rate=7602.60, created_at=2016-05-03 00:33:06, expires_at=2016-05-03 00:34:06, gross=25.00)
+>>> transfer.btc_amount
+Decimal('0.00328834')
+>>> quote.wallet_address
+u'3LiLpKyfXJmeDcD5ABGtmHGjkxnZTHnBxv'}
+
+```
+
+
+### Get Transfer Status ###
+
+```python
+## Request status for a transfer order 
+##
+## transfer_id  - Bitso Transfer Order ID (As returned by transfer_create
+##                method.
+##         - string
+
+>>> print api.transfer_status(transfer.id).status
+u'confirming'
+
+```
+
+
 # Models #
 
 The wrapper uses models to represent data structures returned by the Bitso API. The models are:
@@ -339,6 +474,43 @@ price | Decimal | The order’s price | Minor
 status | String | The order’s status ('cancelled', 'active','partially filled', 'complete') | 
 created_datetime | Datetime | The date the order was created | 
 updated_datetime | Datetime | The date the order was last updated (not shown when status = 0) | 
+
+
+### bitso.TransactionQuote
+
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+btc_amount | Decimal | The total amount in Bitcoins | Major
+currency | String | An ISO 4217 fiat currency symbol (ie, “MXN”). | 
+gross | Decimal |  | 
+rate | Decimal | This major/manor rate (e.g. BTC/MXN) | 
+outlets | Dictionary | Dictionary of Bitso Outlet options | 
+created_at | Datetime | The date the quote was created | 
+expires_at | Datetime | The date the quote will expire | 
+success | Bool | quote generated successfully | 
+
+
+### bitso.TransactionOrder
+
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+btc_amount | Decimal | The total amount in BTC | BTC
+btc_pending | Decimal | Unconfirmed BTC, seen by Bitso servers  | BTC
+btc_received | Decimal | Confirmed BTC seen by Bitso servers | BTC
+confirmation_code | String | | 
+currency | String | An ISO 4217 fiat currency symbol (ie, “MXN”). | 
+currency_amount | Decimal | | 
+currency_settled | Decimal | | 
+currency_fees | Decimal | | 
+fields | Dictionary | Required fields for Pyament Outlet | 
+created_at | Datetime | The date the transfer was created | 
+expires_at | Datetime | The date the transfer order will expire | 
+id | String | Transfer Order ID | 
+payment_outlet_id | String | Payment Outlet ID | 
+qr_img_uri | String | Bitcoin payment QR Code URI | 
+user_uri | String | Transfer Order URI | 
+wallet_address | Bitcoin address you will send BTC to | 
+success | Bool | Response Success | 
 
 # Notations #
 

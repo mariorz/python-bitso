@@ -31,6 +31,7 @@ import bitso
 
 from ordertree import OrderTree
 import logging
+from decimal import Decimal
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 

@@ -336,3 +336,87 @@ class TransactionOrder(BaseModel):
             setattr(self, 'currency_fees', Decimal(self.currency_fees))
         if self.currency_settled:
             setattr(self, 'currency_settled', Decimal(self.currency_settled))
+
+
+
+class OrderUpdate(BaseModel):
+    def __init__(self, **kwargs):
+        for (param, value) in kwargs.items():
+            if param == 'd':
+                setattr(self, 'timestamp', value)
+            elif param == 'r':
+                setattr(self, 'rate', Decimal(str(value)))
+            elif param == 't':
+                if value == 0:
+                    setattr(self, 'side', 'bid')
+                elif value == 1:
+                    setattr(self, 'side', 'ask')
+            elif param  == 'a':
+                setattr(self, 'amount', Decimal(str(value)))
+            elif param  == 'v':
+                setattr(self, 'value', Decimal(str(value)))
+        if not hasattr(self, 'amount'):
+            setattr(self, 'amount', Decimal('0.0'))
+            setattr(self, 'value', Decimal('0.0'))
+                
+    def __repr__(self):
+        return "OrderUpdate(side={side}, timestamp={timestamp}, rate={rate}, amount={amount}, value={value})".format(
+            side=self.side,
+            timestamp=self.timestamp,
+            rate=self.rate,
+            amount= self.amount,
+            value=self.value)
+
+
+
+class TradeUpdate(BaseModel):
+    def __init__(self, **kwargs):
+        for (param, value) in kwargs.items():
+            if param == 'r':
+                setattr(self, 'rate', Decimal(str(value)))
+            elif param  == 'a':
+                setattr(self, 'amount', Decimal(str(value)))
+            elif param  == 'v':
+                setattr(self, 'value', Decimal(str(value)))
+            elif param  == 'i':
+                setattr(self, 'tx_id', value)
+            
+                
+    def __repr__(self):
+        return "TradeUpdate(tx_id={tx_id}, amount={amount}, rate={rate},value={value})".format(
+            tx_id=self.tx_id,
+            rate=self.rate,
+            amount= self.amount,
+            value=self.value)
+
+
+class StreamUpdate(object):
+    def __init__(self, json_dict):
+        self.channel = json_dict['type']
+        self.updates = []
+        if 'payload' in json_dict:
+            if self.channel == 'diff-orders':
+                self.updates = self._build_diff_order_updates(json_dict['payload'])
+            elif self.channel == 'trades':
+                self.updates = self._build_trade_updates(json_dict['payload'])
+            elif self.channel == 'orders':
+                self.updates = self._build_order_updates(json_dict['payload'])
+
+    def _build_object_updates(self, payload, objcls):
+        obj_list = []
+        for elem in payload:
+            elobj = objcls(**elem)
+            obj_list.append(elobj)
+        return obj_list
+
+            
+    def _build_trade_updates(self, payload):
+        return self._build_object_updates(payload, TradeUpdate)
+        
+    def _build_diff_order_updates(self, payload):
+        return self._build_object_updates(payload, OrderUpdate)
+
+    def _build_order_updates(self, payload):
+        asks = self._build_object_updates(payload['asks'], OrderUpdate)
+        bids = self._build_object_updates(payload['bids'], OrderUpdate)
+        return asks+bids

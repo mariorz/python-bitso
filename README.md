@@ -399,7 +399,7 @@ u'confirming'
 ```
 # Websocket API #
 
-WebSocket is a protocol providing full-duplex communication channels over a single TCP connection. [Bitso's Websocket API](https://bitso.com/api_info/?shell#websocket-api) allows a continuous connection that will receive orders according to the client's subscribed channels.
+WebSocket is a protocol providing full-duplex communication channels over a single TCP connection. [Bitso's Websocket API](https://bitso.com/api_info/?shell#websocket-api) allows a continuous connection that will receive updates according to the client's subscribed channels.
 
 #### Available Channels: ####
 + **'trades':** will send updates on each new registered trade.

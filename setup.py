@@ -8,7 +8,7 @@ else:
 
 setup(
     name='python-bitso',
-    version='0.1.6',
+    version='0.1.7',
     author='Mario Romero',
     author_email='mario@romero.fm',
     packages=['bitso', 'tests'],
@@ -18,5 +18,6 @@ setup(
     long_description=long_description,
     install_requires=[
         "requests >= 2.2.1",
+        "ws4py >= 0.3.4"
     ],
 )

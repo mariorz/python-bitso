@@ -23,28 +23,29 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
-from .errors import (ApiError, ApiClientError)
-
-from .models import (
-    Ticker,
-    OrderBook,
-    Balance, 
-    Transaction,
-    UserTransaction,
-    Order,
-    TransactionQuote,
-    TransactionOrder
-)
-
-from .api import Api
-from .websocket import (Listener, Client)
-
-__author__       = 'Mario Romero'
-__email__        = 'mario@romero.fm'
-__version__      = '0.1.7'
-__copyright__    = 'Copyright (c) 2016 Mario Romero'
-__license__      = 'The MIT License (MIT)'
- 
+##parent folder import hack
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+##
 
 
+from bitso import websocket
+
+
+class BasicBitsoListener(websocket.Listener):
+    def on_connect(self):
+        print "Connected"
+        
+    def on_update(self, data):
+        for obj in data.updates:
+            print obj
+        
+if __name__ == '__main__':
+    listener = BasicBitsoListener()
+    client = websocket.Client(listener)
+    channels = ['trades']
+    client.connect(channels)
+    
+
+    

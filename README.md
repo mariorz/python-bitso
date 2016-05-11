@@ -514,7 +514,7 @@ amount | Decimal | Major amount transacted | Major
 price | Decimal | Price per unit of major | Minor
 side | Decimal | Indicates the maker order side (maker order is the order that was open on the order book) | 
 datetime | Datetime | 
-timestamp | Decimal | MXN balance | Unix timestamp
+timestamp | String | MXN balance | Unix timestamp
 
 
 ### bitso.UserTransaction
@@ -578,6 +578,35 @@ qr_img_uri | String | Bitcoin payment QR Code URI |
 user_uri | String | Transfer Order URI | 
 wallet_address | Bitcoin address you will send BTC to | 
 success | Bool | Response Success | 
+
+
+### bitso.OrderUpdate
+
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+datetime | Datetime | Order Date/Time | 
+timestamp | String | Order Timestamp | Unix Timestamp
+side | String | 'bid','ask' | Market side 
+rate | Decimal | Order price | Minor
+amount | Decimal | Major currency amount | Major
+value | Decimal | Total Order Value (amount*rate) | Minor 
+
+### bitso.models.TradeUpdate
+
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+tid | Int | Trade ID | 
+rate | Decimal | Order price | Minor
+amount | Decimal | Major currency amount | Major
+value | Decimal | Total Order Value (amount*rate) | Minor 
+
+### bitso.models.StreamUpdate
+
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+channel | String | ('diff-orders', 'trades', 'orders') | 
+updates | List | List of (TradeUpdate or OrderUpdate) objects | 
+
 
 # Notations #
 

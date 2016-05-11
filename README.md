@@ -431,20 +431,20 @@ if __name__ == '__main__':
 ```shell
 > python examples/ws_trades.py
 Connected
-TradeUpdate(tx_id=96093, amount=0.00296048, rate=8444.56,value=25)
-TradeUpdate(tx_id=96094, amount=0.0568058, rate=8444.56,value=479.7)
-TradeUpdate(tx_id=96095, amount=0.45721742, rate=8444.56,value=3861)
-TradeUpdate(tx_id=96096, amount=1.25176796, rate=8335.88,value=10434.58)
-TradeUpdate(tx_id=96097, amount=0.75948406, rate=8335.83,value=6330.93)
-TradeUpdate(tx_id=96098, amount=0.38027314, rate=8334.31,value=3169.31)
-TradeUpdate(tx_id=96099, amount=0.54340182, rate=8329.95,value=4526.5)
-TradeUpdate(tx_id=96100, amount=0.44632784, rate=8323.59,value=3715.04)
-TradeUpdate(tx_id=96101, amount=0.03216174, rate=8322.31,value=267.65)
-TradeUpdate(tx_id=96102, amount=2.92387591, rate=8318.13,value=24321.17)
-TradeUpdate(tx_id=96103, amount=0.27482146, rate=8313.96,value=2284.85)
-TradeUpdate(tx_id=96104, amount=1.33065393, rate=8312,value=11060.39)
-TradeUpdate(tx_id=96105, amount=0.70166614, rate=8310.66,value=5831.3)
-TradeUpdate(tx_id=96106, amount=0.11416146, rate=8434.37,value=962.88)
+TradeUpdate(tid=96093, amount=0.00296048, rate=8444.56,value=25)
+TradeUpdate(tid=96094, amount=0.0568058, rate=8444.56,value=479.7)
+TradeUpdate(tid=96095, amount=0.45721742, rate=8444.56,value=3861)
+TradeUpdate(tid=96096, amount=1.25176796, rate=8335.88,value=10434.58)
+TradeUpdate(tid=96097, amount=0.75948406, rate=8335.83,value=6330.93)
+TradeUpdate(tid=96098, amount=0.38027314, rate=8334.31,value=3169.31)
+TradeUpdate(tid=96099, amount=0.54340182, rate=8329.95,value=4526.5)
+TradeUpdate(tid=96100, amount=0.44632784, rate=8323.59,value=3715.04)
+TradeUpdate(tid=96101, amount=0.03216174, rate=8322.31,value=267.65)
+TradeUpdate(tid=96102, amount=2.92387591, rate=8318.13,value=24321.17)
+TradeUpdate(tid=96103, amount=0.27482146, rate=8313.96,value=2284.85)
+TradeUpdate(tid=96104, amount=1.33065393, rate=8312,value=11060.39)
+TradeUpdate(tid=96105, amount=0.70166614, rate=8310.66,value=5831.3)
+TradeUpdate(tid=96106, amount=0.11416146, rate=8434.37,value=962.88)
 ```
 
 #### Advanced Example ####
@@ -580,7 +580,7 @@ wallet_address | Bitcoin address you will send BTC to |
 success | Bool | Response Success | 
 
 
-### bitso.OrderUpdate
+### bitso.models.OrderUpdate
 
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------

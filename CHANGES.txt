@@ -5,5 +5,7 @@ v0.1.3, 2016-04-24 -- edits setup.py for package distribution
 v0.1.4, 2016-04-24 -- more files for package distribution
 v0.1.5, 2016-05-02 -- Full Private API/Transfer API endpoint coverage
 v0.1.6, 2016-05-02 -- Bug Fix
-v0.1.7, 2016-05-02 -- Websocket API coverage
-v0.1.8, 2016-05-02 -- Websocket model updates
+v0.1.7, 2016-05-09 -- Websocket API coverage
+v0.1.8, 2016-05-10 -- Websocket model updates
+v0.1.9, 2016-05-10 -- Fixes timestamp to datetime conversion for
+OrderUpdate object (milliseconds not seconds)

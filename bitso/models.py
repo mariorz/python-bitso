@@ -344,7 +344,7 @@ class OrderUpdate(BaseModel):
         for (param, value) in kwargs.items():
             if param == 'd':
                 setattr(self, 'timestamp', value)
-                setattr(self, 'datetime', datetime.fromtimestamp(int(value)))
+                setattr(self, 'datetime', datetime.fromtimestamp(int(value)/1000))
             elif param == 'r':
                 setattr(self, 'rate', Decimal(str(value)))
             elif param == 't':

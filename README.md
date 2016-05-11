@@ -585,7 +585,7 @@ success | Bool | Response Success |
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
 datetime | Datetime | Order Date/Time | 
-timestamp | String | Order Timestamp | Unix Timestamp
+timestamp | String | Order Unix Timestamp | Milliseconds
 side | String | 'bid','ask' | Market side 
 rate | Decimal | Order price | Minor
 amount | Decimal | Major currency amount | Major

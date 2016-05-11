@@ -344,6 +344,7 @@ class OrderUpdate(BaseModel):
         for (param, value) in kwargs.items():
             if param == 'd':
                 setattr(self, 'timestamp', value)
+                setattr(self, 'datetime', datetime.fromtimestamp(int(value)))
             elif param == 'r':
                 setattr(self, 'rate', Decimal(str(value)))
             elif param == 't':
@@ -379,12 +380,12 @@ class TradeUpdate(BaseModel):
             elif param  == 'v':
                 setattr(self, 'value', Decimal(str(value)))
             elif param  == 'i':
-                setattr(self, 'tx_id', value)
+                setattr(self, 'tid', value)
             
                 
     def __repr__(self):
-        return "TradeUpdate(tx_id={tx_id}, amount={amount}, rate={rate},value={value})".format(
-            tx_id=self.tx_id,
+        return "TradeUpdate(tid={tid}, amount={amount}, rate={rate},value={value})".format(
+            tid=self.tid,
             rate=self.rate,
             amount= self.amount,
             value=self.value)

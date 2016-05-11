@@ -580,7 +580,7 @@ wallet_address | Bitcoin address you will send BTC to |
 success | Bool | Response Success | 
 
 
-### bitso.OrderUpdate
+### bitso.models.OrderUpdate
 
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------

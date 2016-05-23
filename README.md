@@ -165,6 +165,19 @@ s5ntlud6oupippk8iigw5dazjdxwq5vibjcwdp32ksl9i4h0nyxsc8svlpscuov5
 
 ```
 
+### Lookup Order ###
+
+```python
+## Returns a list of details for 1 or more orders
+## Parameters
+## order_ids -  A list of Bitso Order IDs.
+##          - string
+>>> orders = api.lookup_order([ORDER_ID1, ORDER_ID2])
+>>> orders
+[Order(order_id=s0ntlud6oupippk8iigw5dazjdxwq5vibjcwdp12ksk9i4h0nyxsc8svlpscuov5, type=buy, price=7000.00, amount=0.01000000, created_datetime=2016-04-22 14:31:10),
+ Order(order_id=whtyptv0f348fajdydoswcf6cj20d0kahd77657l7ctnnd1lrpdn2suebwfpxz0f, type=buy, price=7200.00, amount=0.01200000, created_datetime=2016-04-22 14:32:10)]
+```
+
 ### Cancel Order ###
 
 ```python

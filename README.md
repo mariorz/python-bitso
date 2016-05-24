@@ -463,7 +463,7 @@ TradeUpdate(tid=96106, amount=0.11416146, rate=8434.37,value=962.88)
 #### Advanced Example ####
 Gets a copy of the order book via the rest API once, and keeps it up to date using the **'diff-orders'** channel. Logs every order, spread update, or trade.
 
-See [examples/livebookexample.py](https://github.com/mariorz/python-bitso/blob/master/examples/livebookexample.py)
+See [examples/livebookexample.py](https://github.com/bitsoex/bitso-py/blob/master/examples/livebookexample.py)
 
 ```shell
 > python examples/livebookexample.py

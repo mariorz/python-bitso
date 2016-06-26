@@ -271,7 +271,7 @@ ok   # Returns 'ok' on success
 ##         - string
 ## address - The ripple address to send the amount to
 ##         - string
->>> api.ripple_withdrawal('1.10', 'rG1QQv2nh2gr7RCZ1P8YYcBUKCCN633jCn')
+>>> api.ripple_withdrawal('xrp', '1.10', 'rG1QQv2nh2gr7RCZ1P8YYcBUKCCN633jCn')
 ok   # Returns 'ok' on success
 ```
 

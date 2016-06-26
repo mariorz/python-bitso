@@ -25,7 +25,10 @@ A python wrapper for the [Bitso API](https://bitso.com/api_info/)
 ### Ticker ###
 
 ```python
-# Ticker information
+## Ticker information
+## Parameters
+## [book = btc_mxn] - Specifies which book to use
+##                  - string
  >>> tick = api.ticker()
  >>> tick
  Ticker(ask=7866.27, bid=7795.00, high=7866.27, last=7866.27, low=7707.43, datetime=2016-04-22 16:46:25, vwaplow=7795.00)
@@ -41,8 +44,8 @@ A python wrapper for the [Bitso API](https://bitso.com/api_info/)
 ```python
 ## Public order book
 ## Parameters
-## [group = btc_mxn] - Specifies which book to use
-##                - string
+## [book = btc_mxn] - Specifies which book to use
+##                  - string
 ## [group = True] - Group orders with the same price
 ##                - boolean
 >>> ob = api.order_book()
@@ -72,10 +75,10 @@ datetime.datetime(2016, 4, 22, 18, 24, 58)
 ```python
 ## Public transactions
 ## Parameters
-## [book = 'btc_mxn']    - Specifies which book to use
-##                 - str
-## [time = 'hour']   - Time frame for transaction export ('hour', 'minute')
-##                 - str
+## [book = 'btc_mxn'] - Specifies which book to use
+##                    - str
+## [time = 'hour']    - Time frame for transaction export ('hour', 'minute')
+##                    - str
 >>> txs = api.transactions()
 >>> txs
 [Transaction(tid=91314, price=7864.10, amount=0.81446192, side=sell, datetime=2016-04-22 13:47:29),
@@ -128,7 +131,9 @@ Decimal('1.01300152')
 ##                 - int
 ## [sort = 'desc'] - Sorting by datetime
 ##                 - string - 'asc' or
-##                 -        - 'desc'
+##                 - 'desc'
+## [book = btc_mxn]- Specifies which book to use
+##                 - string
 >>> utx = api.user_transactions()
 >>> utx
 [UserTransaction(type=trade, created_datetime=2016-04-21 23:17:39),
@@ -155,6 +160,9 @@ Decimal('7780.00')
 
 ```python
 ## Returns a list of the user’s open orders
+## Parameters
+## [book = 'btc_mxn'] - Specifies which book to use
+##                    - str
 >>> oo = api.open_orders()
 >>> oo
 [Order(order_id=s5ntlud6oupippk8iigw5dazjdxwq5vibjcwdp32ksk9i4h0nyxsc8svlpscuov5, type=buy, price=7000.00, amount=0.01000000, created_datetime=2016-04-22 14:31:10)]
@@ -163,6 +171,19 @@ Decimal('7000.00')
 >>> oo[0].order_id
 s5ntlud6oupippk8iigw5dazjdxwq5vibjcwdp32ksl9i4h0nyxsc8svlpscuov5
 
+```
+
+### Lookup Order ###
+
+```python
+## Returns a list of details for 1 or more orders
+## Parameters
+## order_ids -  A list of Bitso Order IDs.
+##          - string
+>>> orders = api.lookup_order([ORDER_ID1, ORDER_ID2])
+>>> orders
+[Order(order_id=s0ntlud6oupippk8iigw5dazjdxwq5vibjcwdp12ksk9i4h0nyxsc8svlpscuov5, type=buy, price=7000.00, amount=0.01000000, created_datetime=2016-04-22 14:31:10),
+ Order(order_id=whtyptv0f348fajdydoswcf6cj20d0kahd77657l7ctnnd1lrpdn2suebwfpxz0f, type=buy, price=7200.00, amount=0.01200000, created_datetime=2016-04-22 14:32:10)]
 ```
 
 ### Cancel Order ###
@@ -184,8 +205,8 @@ u'true' #on success
 ##        - string
 ## price  - Specified price for the limit order.
 ##        - string
-## [book = 'btc_mxn']    - Specifies which book to use
-##                 - str
+## [book = 'btc_mxn'] - Specifies which book to use
+##                    - str
 >>> order = api.buy(amount='.01', price='7000.00')
 >>> order
 Order(order_id=0zx3f7b8k5jrx1vj123y4nfkd9sguihvhfywm957epycqtvsvzq0m6k0fdgavy5d, type=buy, price=7000.00, amount=0.01000000, created_datetime=2016-04-22 14:43:13)
@@ -209,7 +230,7 @@ Decimal('0.01000000')
 ##            currency specified in amount at the market rate
 ##        - string
 ## [book = 'btc_mxn']    - Specifies which book to use
-##                 - str
+##                       - str
 >>> s_order = api.sell(amount='.0032', price='08000')
 >>> s_order
 Order(order_id=whtyptv0f348fajdydoswcf6cj20d0kahd97647l7ctnnd1lrpdn2suebwfpxz0f, type=sell, price=8000.00, amount=0.00320000, created_datetime=2016-04-22 15:41:00)
@@ -244,6 +265,8 @@ ok   # Returns 'ok' on success
 
 ```python
 ## Triggers a ripple withdrawal from your account
+## currency  - The currency to withdraw
+##         - string
 ## amount  - The amount of BTC to withdraw from your account
 ##         - string
 ## address - The ripple address to send the amount to
@@ -450,7 +473,7 @@ TradeUpdate(tid=96106, amount=0.11416146, rate=8434.37,value=962.88)
 #### Advanced Example ####
 Gets a copy of the order book via the rest API once, and keeps it up to date using the **'diff-orders'** channel. Logs every order, spread update, or trade.
 
-See [examples/livebookexample.py](https://github.com/mariorz/python-bitso/blob/master/examples/livebookexample.py)
+See [examples/livebookexample.py](https://github.com/bitsoex/bitso-py/blob/master/examples/livebookexample.py)
 
 ```shell
 > python examples/livebookexample.py
@@ -621,22 +644,3 @@ An order book is always referred to in the API as “Major_Minor”. For example
 
 The MIT License (MIT)
 
-Copyright (c) 2016 Mario Romero 
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.

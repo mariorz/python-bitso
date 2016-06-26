@@ -545,8 +545,8 @@ class Api(object):
         return parameters
 
     def _request_url(self, url, verb, params=None):
-        url = self._build_url(url, params)
         if verb == 'GET':
+            url = self._build_url(url, params)
             try:
                 resp = requests.get(url)
             except requests.RequestException as e:

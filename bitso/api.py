@@ -343,10 +343,12 @@ class Api(object):
         resp = self._request_url(url, 'POST', params=parameters)
         return resp
 
-    def ripple_withdrawal(self, amount, address):
+    def ripple_withdrawal(self, currency, amount, address):
         """Triggers a ripple withdrawal from your account
 
         Args:
+          currency (str):
+            The currency to withdraw
           amount (str):
             The amount of BTC to withdraw from your account
           address (str):
@@ -358,6 +360,7 @@ class Api(object):
 
         url = '%s/ripple_withdrawal' % self.base_url
         parameters = self._build_auth_payload()
+        parameters['currency'] = str(currency).encode('utf-8')
         parameters['amount'] = str(amount).encode('utf-8')
         parameters['address'] = address
         resp = self._request_url(url, 'POST', params=parameters)

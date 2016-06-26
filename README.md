@@ -265,6 +265,8 @@ ok   # Returns 'ok' on success
 
 ```python
 ## Triggers a ripple withdrawal from your account
+## currency  - The currency to withdraw
+##         - string
 ## amount  - The amount of BTC to withdraw from your account
 ##         - string
 ## address - The ripple address to send the amount to

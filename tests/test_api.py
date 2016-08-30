@@ -77,8 +77,26 @@ class PublicApiTest(unittest.TestCase):
             ticker = self.api.ticker('btc_mxn')
         self.assertIsInstance(ticker, bitso.Ticker)
 
-                    
-    def test_order_book(self):
+
+
+    def test_order_book_ungrouped(self):
+        with open('tests/order_book_ungrouped.json') as data_file:   
+            response = FakeResponse(data_file.read().replace('\n', ''))
+        with mock.patch('requests.get', return_value=response):
+            result = self.api.order_book(group=False)
+        self.assertIsInstance(result, bitso.OrderBook)
+        self.assertIsInstance(result.asks, list)
+        self.assertEqual(len(result.asks), 399)
+        self.assertIsInstance(result.bids, list)
+        self.assertEqual(len(result.bids), 318)
+        self.assertEqual(result.asks[0]['price'], Decimal("10859.05"))
+        self.assertEqual(result.asks[0]['amount'], Decimal("2.55631938"))
+        self.assertEqual(result.bids[0]['price'], Decimal("10810.80"))
+        self.assertEqual(result.bids[0]['amount'], Decimal("0.00138759"))
+
+        
+                            
+    def test_order_book_grouped(self):
         response = FakeResponse(b'''
             {"asks": [
                ["5632.24", "1.34491802"],

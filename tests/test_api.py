@@ -142,14 +142,22 @@ class PublicApiTest(unittest.TestCase):
             }
         ]''')
         with mock.patch('requests.get', return_value=response):
-            txs = self.api.transactions()
-        print txs
+            txs = self.api.transactions(book='btc_mxn', time='hour')
         self.assertIsInstance(txs, list)
         self.assertEqual(len(txs), 2)
         self.assertEqual(txs[0].price, Decimal("5545.01"))
         self.assertEqual(txs[0].timestamp, "1447350465")
 
-        
+
+          
+    def test_transactions_time_fail(self):
+        self.assertRaises(bitso.ApiClientError,
+                          self.api.transactions, 'btc_mxn', 'hours')
+
+
+    
+
+                
 
 class PrivateApiTest(unittest.TestCase):
     def setUp(self):

@@ -208,7 +208,7 @@ class PrivateApiTest(unittest.TestCase):
             }
         ] ''')
         with mock.patch('requests.post', return_value=response):
-            txs = self.api.user_transactions()
+            txs = self.api.user_transactions(sort='desc')
         print txs
         self.assertIsInstance(txs, list)
         self.assertEqual(len(txs), 3)
@@ -223,6 +223,15 @@ class PrivateApiTest(unittest.TestCase):
                         "19vaqiv72drbphig81d3y1ywri0yg8miihs80ng217drpw7xyl0wmytdhtby2ygk")
 
 
+    
+    def test_user_transactions_fail(self):
+        self.assertRaises(bitso.ApiClientError,
+                          self.api.user_transactions, sort='dec')
+
+
+    
+
+        
     def test_open_orders(self):
         response = FakeResponse(b'''
         [

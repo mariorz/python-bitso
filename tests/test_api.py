@@ -74,10 +74,10 @@ class PublicApiTest(unittest.TestCase):
             "timestamp": "1447348096"
         }''')
         with mock.patch('requests.get', return_value=response):
-            ticker = self.api.ticker()
-        print ticker
+            ticker = self.api.ticker('btc_mxn')
         self.assertIsInstance(ticker, bitso.Ticker)
 
+                    
     def test_order_book(self):
         response = FakeResponse(b'''
             {"asks": [
@@ -93,7 +93,6 @@ class PublicApiTest(unittest.TestCase):
             "timestamp": "1447348416"}''')
         with mock.patch('requests.get', return_value=response):
             result = self.api.order_book(group=True)
-        print result
         self.assertIsInstance(result, bitso.OrderBook)
         self.assertIsInstance(result.asks, list)
         self.assertEqual(len(result.asks), 3)

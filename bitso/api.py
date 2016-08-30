@@ -115,13 +115,13 @@ class Api(object):
 
         url = '%s/order_book' % self.base_url
         parameters = {}
-        if book:
-            if book == True:
-                parameters['book'] = True
+        if group != None:
+            if group == True:
+                parameters['group'] = True
             else:
-                parameters['book'] = False
-        if group:
-            parameters['group'] = group
+                parameters['group'] = False
+        if book:
+            parameters['book'] = book
         resp = self._request_url(url, 'GET', params=parameters)
         return OrderBook._NewFromJsonDict(resp)
 

@@ -276,10 +276,40 @@ class PrivateApiTest(unittest.TestCase):
         self.assertEqual(result[2].price, Decimal("6123.55"))
 
 
-
-    def test_lookup_orders(self):
+    def test_lookup_order(self):
         response = FakeResponse(b'''
-        [{
+        [{"status": "0", "created": "2016-08-30 18:05:12", "price": "15801.23", "amount": "0.01000000", "book": "btc_mxn", "type": "1", "id": "X45g3MhXJpVcpl7VsM25l5Mkv7nhJO5rOvf8lnqnso9nOOXir7vrR5mcld587sMo"}]''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.api.lookup_order('X45g3MhXJpVcpl7VsM25l5Mkv7nhJO5rOvf7lnqnso9nOOXir7vrR5mcld587sMo')
+
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].type, 'sell')
+        self.assertEqual(result[0].price, Decimal('15801.23'))
+        self.assertEqual(result[0].amount, Decimal('0.01000000'))
+    
+    def test_cancel_order(self):
+        response = FakeResponse(b'''"true"''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.api.cancel_order('X45g3MhXJpVcpl7VsM25l5Mkv7nhJO5rOvf7lnqnso9nOOXir7vrR5mcld587sMo')
+        self.assertEqual(result, 'true')
+
+    def test_btc_deposit_address(self):
+        response = FakeResponse(b'''"3Kejck1J6aKSMZs3fSfbpb5szieJ6RA9rj"''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.api.btc_deposit_address()
+        self.assertEqual(result, '3Kejck1J6aKSMZs3fSfbpb5szieJ6RA9rj')
+
+
+    def test_btc_withdrawal(self):
+        response = FakeResponse(b'''"ok"''')
+        with mock.patch('requests.post', return_value=response):
+            result = self.api.btc_withdrawal('.01','1Hnv5fFaWUTChfBHPizfeNjGvi1ep7tCkt')
+        self.assertEqual(result, 'ok')
+        
+    
+    def test_lookup_orders(self):
+        response = FakeResponse(b'''[{
            "amount": "0.01000000",
            "created": "2015-11-12 12:37:01",
            "price": "5600.00",
@@ -288,7 +318,7 @@ class PrivateApiTest(unittest.TestCase):
            "type": "1",
            "updated": "2015-11-12 12:37:40",
            "status": "-1"
-        }] ''')
+        }]''')
         with mock.patch('requests.post', return_value=response):
             result = self.api.open_orders()
         print result

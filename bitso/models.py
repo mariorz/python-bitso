@@ -26,6 +26,7 @@
 
 from decimal import Decimal
 from datetime import datetime
+import dateutil.parser
 
 
 class BaseModel(object):
@@ -108,6 +109,7 @@ class OrderBook(BaseModel):
 
    
 
+    
 
 class Balance(BaseModel):
         
@@ -137,6 +139,9 @@ class Balance(BaseModel):
             mxn_balance=self.mxn_balance,
             mxn_reserved=self.mxn_reserved,
             fee=self.fee)
+
+
+
     
             
 class Transaction(BaseModel):
@@ -199,6 +204,27 @@ class UserTransaction(BaseModel):
             created_datetime=self.created_datetime)
 
 
+
+
+class LedgerEntry(BaseModel):
+    """A class that represents a Bitso Ledger entry."""
+    def __init__(self, **kwargs):
+        for (param, value) in kwargs.items():
+            if param == 'created_at':
+                value = dateutil.parser.parse(value)
+            if param == 'balance_updates':
+                value = [BalanceUpdate._NewFromJsonDict(item) for item in value]
+            setattr(self, param, value)
+        
+
+
+class BalanceUpdate(BaseModel):
+    """A class that represents a Bitso Balance Update"""
+    def __init__(self, **kwargs):
+        for (param, value) in kwargs.items():
+            if param == 'amount':
+                value = Decimal(value)
+            setattr(self, param, value)
 
 
 class Order(BaseModel):

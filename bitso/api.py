@@ -34,7 +34,7 @@ from urllib import urlencode
 
 
 from bitso import (ApiError, ApiClientError, Ticker, OrderBook, Balance, Transaction,
-                     UserTransaction, Order, TransactionQuote, TransactionOrder)
+                     UserTransaction, Order, TransactionQuote, TransactionOrder, LedgerEntry)
 
 
 class Api(object):
@@ -73,6 +73,7 @@ class Api(object):
             Bitso API Secret
         """
         self.base_url = "https://bitso.com/api/v2"
+        self.base_url_v3 = "https://bitso.com/api/v3"
         self.client_id = client_id
         self.key = key
         self._secret = secret
@@ -524,8 +525,6 @@ class Api(object):
             method.
 
         """
-
-        
         if transfer_id is None:
             raise ApiClientError({u'message': u"'transfer_id' not specified"})
         url = '%s/transfer/%s' % (self.base_url, transfer_id)
@@ -533,7 +532,18 @@ class Api(object):
         resp = self._request_url(url, 'GET', params=parameters)
         return TransactionOrder._NewFromJsonDict(resp)
 
-        
+    def ledger(self, operations='', marker=None, limit=25, sort='desc'):
+        url = '%s/ledger/%s' % (self.base_url_v3, operations)
+        parameters = self._build_auth_payload()
+        if marker:
+            parameters['marker'] = marker
+        if limit:
+            parameters['limit'] = limit
+        if sort:
+            parameters['sort'] = sort
+        resp = self._request_url(url, 'POST', params=parameters)
+        return [LedgerEntry._NewFromJsonDict(entry) for entry in resp['payload']]
+    
     def _build_auth_payload(self):
         parameters = {}
         parameters['key'] = self.key
@@ -593,6 +603,9 @@ class Api(object):
         return data
 
     def _check_for_api_error(self, data):
+        if 'success' in data:
+            if data['success'] != True:
+                raise ApiError(data['error'])
         if 'error' in data:
             raise ApiError(data['error'])
         if isinstance(data, (list, tuple)) and len(data)>0:

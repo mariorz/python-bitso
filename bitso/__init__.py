@@ -34,7 +34,9 @@ from .models import (
     UserTransaction,
     Order,
     TransactionQuote,
-    TransactionOrder
+    TransactionOrder,
+    LedgerEntry,
+    BalanceUpdate
 )
 
 from .api import Api

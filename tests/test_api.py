@@ -519,6 +519,16 @@ class PrivateApiTest(unittest.TestCase):
         self.assertEqual(result.wallet_address, 'mgKZfNdFJgztvfvhEaGgMTQRQ2iHCadHGa')
         
 
+    def test_ledger(self):
+        with open('tests/ledger.json') as data_file:   
+            response = FakeResponse(data_file.read().replace('\n', ''))
+        with mock.patch('requests.post', return_value=response):
+            result = self.api.ledger()
+        for item in result:
+            for bu in item.balance_updates:
+                self.assertIsInstance(bu, bitso.BalanceUpdate)
+                self.assertIsInstance(bu.amount, Decimal)
+
         
         
 if __name__ == '__main__':

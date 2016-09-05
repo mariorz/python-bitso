@@ -34,6 +34,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import bitso
 
 from decimal import Decimal
+import datetime
 
 class FakeResponse(requests.Response):
     def __init__(self, content='', status_code=200):
@@ -528,8 +529,8 @@ class PrivateApiTest(unittest.TestCase):
             for bu in item.balance_updates:
                 self.assertIsInstance(bu, bitso.BalanceUpdate)
                 self.assertIsInstance(bu.amount, Decimal)
+            self.assertIsInstance(item.created_at, datetime.datetime)
 
-        
         
 if __name__ == '__main__':
     unittest.main()

@@ -533,6 +533,21 @@ class Api(object):
         return TransactionOrder._NewFromJsonDict(resp)
 
     def ledger(self, operations='', marker=None, limit=25, sort='desc'):
+        """Get the ledger of user operations 
+
+        Args:
+          operations (str, optional):
+            They type of operations to include. Enum of ('trade', 'fee', 'funding', 'withdrawal')
+            If None, returns all the operations.
+          marker (str, optional):
+            Returns objects that are older or newer (depending on 'sort') than the object which
+            has the marker value as ID
+          limit (int, optional):
+            Limit the number of results to parameter value, max=100, default=25
+          sort (str, optional):
+            Sorting by datetime: 'asc', 'desc'
+            Defuault is 'desc'
+        """
         url = '%s/ledger/%s' % (self.base_url_v3, operations)
         parameters = self._build_auth_payload()
         if marker:

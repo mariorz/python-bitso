@@ -537,7 +537,7 @@ class Api(object):
 
         Args:
           operations (str, optional):
-            They type of operations to include. Enum of ('trade', 'fee', 'funding', 'withdrawal')
+            They type of operations to include. Enum of ('trades', 'fees', 'fundings', 'withdrawals')
             If None, returns all the operations.
           marker (str, optional):
             Returns objects that are older or newer (depending on 'sort') than the object which

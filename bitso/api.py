@@ -619,7 +619,7 @@ class Api(object):
         parameters['currency'] = currency
         parameters['full'] = True
         resp = self._request_url(url, 'POST', params=parameters)
-        return TransactionQuote._NewFromJsonDict(resp) 
+        return TransactionQuote._NewFromJsonDict(resp['payload']) 
 
 
 

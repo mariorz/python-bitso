@@ -416,15 +416,17 @@ class TransactionQuote(BaseModel):
 
         
     def __init__(self, **kwargs):
-        setattr(self, 'success', kwargs['success'])
 
-        for (param, value) in kwargs['quote'].items():
+        for (param, value) in kwargs.items():
             if param=='outlets':
                 setattr(self, param, OutletDictionary(value))
             else:
                 setattr(self, param, value)
-        setattr(self, 'created_at', datetime.fromtimestamp(int(kwargs['quote'].get('timestamp'))))
-        setattr(self, 'expires_at', datetime.fromtimestamp(int(kwargs['quote'].get('expires_epoch'))))
+    'created_at': dateutil.parser.parse(kwargs.get('created_at')),
+
+                                
+        setattr(self, 'created_at', dateutil.parser.parse(kwargs.get('created_at')))
+        setattr(self, 'expires_epoch', dateutil.parser.parse(kwargs.get('expires_epoch')))
 
         
         setattr(self, 'btc_amount', Decimal(self.btc_amount))
@@ -451,12 +453,12 @@ class TransactionOrder(BaseModel):
         
     def __init__(self, **kwargs):
         setattr(self, 'btc_amount', None)
-        setattr(self, 'success', kwargs['success'])
 
-        for (param, value) in kwargs['order'].items():
+
+        for (param, value) in kwargs.items():
             setattr(self, param, value)
-        setattr(self, 'created_at', datetime.fromtimestamp(int(kwargs['order'].get('created_at'))))
-        setattr(self, 'expires_at', datetime.fromtimestamp(int(kwargs['order'].get('expires_epoch'))))
+        setattr(self, 'created_at', dateutil.parser.parse(kwargs.get('created_at')))
+        setattr(self, 'expires_at', dateutil.parser.parse(kwargs.get('expires_epoch')))
         if self.btc_amount:
             setattr(self, 'btc_amount', Decimal(self.btc_amount))
         if self.btc_pending:

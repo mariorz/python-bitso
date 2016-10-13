@@ -493,10 +493,29 @@ See [examples/livebookexample.py](https://github.com/bitsoex/bitso-py/blob/maste
 
 The wrapper uses models to represent data structures returned by the Bitso API. 
 
+### bitso.AvilableBook
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+book | String | Order book symbol | Major_Minor
+minimum_amount | Decimal | Minimum amount of major when placing orders | Major
+maximum_amount | Decimal | Maximum amount of major when placing orders | Major
+minimum_price | Decimal | Minimum price when placing orders	 | Minor
+maximum_price | Decimal | Maximum price when placing orders	 | Minor
+minimum_value | Decimal | Minimum value amount (amount*price) when placing orders		 | Minor
+maximum_value | Decimal | Maximum value amount (amount*price) when placing orders	 | Minor
+
+
+### bitso.AccountRequiredField
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+name | String | Field name that will be user for “account_creation” endpoint | 
+description | String | Describes each field | 
+
 
 ### bitso.Ticker
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
+book | String | Order book symbol | Major_Minor
 ask | Decimal | Lowest sell order | Minor/Major
 bid | Decimal | Highest buy order | Minor/Major
 last | Decimal | Last traded price | Minor/Major
@@ -504,8 +523,17 @@ high | Decimal | Last 24 hours price high | Minor/Major
 low | Decimal | Last 24 hours price low | Minor/Major
 vwap | Decimal | Last 24 hours price high | Minor/Major
 volume | Decimal | Last 24 hours volume | Major
-datetime | Datetime | Ticker current datetime | 
-timestamp | String | Ticker current timestamp | Unix timestamp
+created_at | Datetime | Ticker current datetime | 
+
+### bitso.PublicOrder
+
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+book | String | Order book symbol | Major_Minor
+price | Decimal | Price per unit of major | Minor
+amount | Decimal | Major amount in order | Major
+created_at | Datetime | The datetime at which the order was created |
+updated_at | Datetime | The datetime at which the order was updated (Can be None) |
 
 
 ### bitso.OrderBook
@@ -513,58 +541,111 @@ Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
 asks | List | List of open asks | Minor/Major
 bids | List | List of open bids | Minor/Major
-datetime | Datetime | OrderBook current datetime | 
-timestamp | String | OrderBook current timestamp | Unix timestamp
+created_at | Datetime | OrderBook current datetime | 
 
 
 ### bitso.Balance
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
-btc_balance | Decimal | BTC balance | BTC
-btc_available | Decimal | BTC available for trading (balance - reserved) | BTC
-btc_reserved | Decimal | BTC locked in open orders | BTC
-mxn_balance | Decimal | MXN balance | MXN
-mxn_available | Decimal | MXN available for trading (balance - reserved) | MXN
-mxn_reserved | Decimal | MXN locked in open orders | MXN
-fee | Decimal | Customer trading fee as a percentage | 
+currency | String | 	Currency symbol | 
+total | Decimal | Total balance for currency | Currency
+locked | Decimal | Currency balance locked in open orders | Currency
+available | Decimal | Currency balance available for use | Currency
 
 
-### bitso.Transaction
+### bitso.Fee
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
-tid | Long | Transaction ID | 
+book | String | Order book symbol | Major_Minor
+fee_decimal | Decimal | Customer trading fee as a decimal |
+fee_percent | Decimal | Customer trading fee as a percentage |
+
+
+
+### bitso.Trade
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+tid | Long | Trade ID | 
+book | String | Order book symbol | Major_Minor
 amount | Decimal | Major amount transacted | Major
 price | Decimal | Price per unit of major | Minor
-side | Decimal | Indicates the maker order side (maker order is the order that was open on the order book) | 
-datetime | Datetime | 
-timestamp | String | MXN balance | Unix timestamp
+side | String | Indicates the maker order side (maker order is the order that was open on the order book) | 
+created_at | Datetime | Datetime at which the trade was executed |
 
 
-### bitso.UserTransaction
+### bitso.Withdrawal
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
-tid | Long | Unique identifier (only for trades) | 
-type | String | Transaction type ('deposit', 'withdrawal', 'trade') |
-order_id | String | A 64 character long hexadecimal string representing the order that was fully or partially filled (only for trades) | 
-rate | Decimal | Price per minor (only for trades) | Minor
-created_datetime | Datetime | Date and time | 
-(minor currency code) | Decimal | The minor currency amount | Minor
-(major currency code) | Decimal | The major currency amount | Major 
+wid | String | Withdrawal ID | 
+currency | String | Currency withdrawn symbol | 
+method | String | Method for this withdrawal (MXN, BTC, ETH) | 
+amount | Decimal | The withdrawn amount | currency
+status | String | 	The status for this withdrawal (pending, complete, cancelled) | 
+created_at | Datetime | Datetime at which the withdrawal as created |
+details | Dict | 	Specific withdrawal details) | 
 
+
+
+### bitso.Funding
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+fid | String | Funding ID | 
+currency | String | Currency funding symbol | 
+method | String | Method for this funding (MXN, BTC, ETH) | 
+amount | Decimal | The funding amount | currency
+status | String | 	The status for this funding (pending, complete, cancelled) | 
+created_at | Datetime | Datetime at which the funding as recieved |
+details | Dict | 	Specific funding details | 
+
+
+### bitso.UserTrade
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+tid | Long | Trade ID | 
+oid | String | Users’ Order ID | 
+book | String | Order book symbol | Major_Minor
+side | String | Indicates the user’s side for this trade (buy, sell) | 
+created_at | Datetime | Datetime at which the trade was executed | 
+major | Decimal | Major amount traded | Major
+minor | Decimal | Minor amount traded | Minor
+price | Decimal | Price per unit of major | Minor
+fees_currency | String | 	Indicates the currency in which the trade fee was charged | 
+fees_amount | Decimal | Indicates the amount charged as trade fee | Major
+
+### bitso.LedgerEntry
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+eid | String | Entry ID	| 
+operation | String | Indicates type of operation (funding, withdrawal, trade, fee) | 
+created_at | Datetime | Timestamp at which the operation was recorded | 
+balance_updates | List | Updates to user balances for this operation | 
+details | Dict | Specific operation details | 
+
+### bitso.BalanceUpdate
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+currency | String | Currency for this balance update | 
+balance | Decimal | Amount added or subtracted to user balance | Currency
 
 ### bitso.Order
 
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
-order_id | String | The Order ID | 
-type | String | Order Type ('buy','sell') | 
-book | String | Which orderbook the order belongs to (not shown when status = 0) | 
-amount | Decimal | The order’s major currency amounts | Major
+oid | String | The Order ID | 
+book | String | Order book symbol | Major_Minor
+type | String | The order type (market, limit) | 
+side | String | The order side (buy, sell) | 
+status | String | The order’s status (open, partial-fill, closed)) | 
+created_at | Datetime | The date the order was created | 
+updated_at | Datetime | Timestamp at which the order was updated (can be None) | 
 price | Decimal | The order’s price | Minor
-status | String | The order’s status ('cancelled', 'active','partially filled', 'complete') | 
-created_datetime | Datetime | The date the order was created | 
-updated_datetime | Datetime | The date the order was last updated (not shown when status = 0) | 
+amount | Decimal | The order’s major currency amount | Major
 
+### bitso.FundingDestination
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+account_identifier_name | String | Account identifier name to fund with the specified currency. | 
+account_identifier | String | Identifier to where the funds can be sent to | 
 
 ### bitso.TransactionQuote
 
@@ -577,7 +658,7 @@ rate | Decimal | This major/manor rate (e.g. BTC/MXN) |
 outlets | Dictionary | Dictionary of Bitso Outlet options | 
 created_at | Datetime | The date the quote was created | 
 expires_at | Datetime | The date the quote will expire | 
-success | Bool | quote generated successfully | 
+
 
 
 ### bitso.TransactionOrder
@@ -600,7 +681,7 @@ payment_outlet_id | String | Payment Outlet ID |
 qr_img_uri | String | Bitcoin payment QR Code URI | 
 user_uri | String | Transfer Order URI | 
 wallet_address | Bitcoin address you will send BTC to | 
-success | Bool | Response Success | 
+
 
 
 ### bitso.models.OrderUpdate
@@ -608,7 +689,6 @@ success | Bool | Response Success |
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
 datetime | Datetime | Order Date/Time | 
-timestamp | String | Order Unix Timestamp | Milliseconds
 side | String | 'bid','ask' | Market side 
 rate | Decimal | Order price | Minor
 amount | Decimal | Major currency amount | Major

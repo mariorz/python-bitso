@@ -118,10 +118,14 @@ class PublicOrder(BaseModel):
             'book': kwargs.get('book'),
             'price': Decimal(kwargs.get('price')),
             'amount': Decimal(kwargs.get('amount')),
-            'created_at': dateutil.parser.parse(kwargs.get('created_at')),
-            'updated_at': dateutil.parser.parse(kwargs.get('updated_at'))
+            'created_at': dateutil.parser.parse(kwargs.get('created_at'))
         }
 
+        if kwargs.get('updated_at') == None:
+            setattr(self, 'updated_at', None)
+        else:
+            setattr(self, 'updated_at',  dateutil.parser.parse(kwargs.get('updated_at')))
+            
         for (param, val) in self._default_params.items():
             setattr(self, param, val)
 
@@ -353,13 +357,19 @@ class Order(BaseModel):
             'book': kwargs.get('book'),
             'oid': kwargs.get('oid'),
             'created_at': dateutil.parser.parse(kwargs.get('created_at')),
-            'updated_at': dateutil.parser.parse(kwargs.get('updated_at')),
             'amount': Decimal(kwargs.get('amount')),
             'price': Decimal(kwargs.get('price')),
             'side': kwargs.get('side'),
             'status': kwargs.get('status'),
             'type': kwargs.get('type')
         }
+
+        if kwargs.get('updated_at') == None:
+            setattr(self, 'updated_at', None)
+        else:
+            setattr(self, 'updated_at',  dateutil.parser.parse(kwargs.get('updated_at')))
+            
+
 
         for (param, val) in self._default_params.items():
             setattr(self, param, val)
@@ -422,11 +432,9 @@ class TransactionQuote(BaseModel):
                 setattr(self, param, OutletDictionary(value))
             else:
                 setattr(self, param, value)
-    'created_at': dateutil.parser.parse(kwargs.get('created_at')),
 
-                                
         setattr(self, 'created_at', dateutil.parser.parse(kwargs.get('created_at')))
-        setattr(self, 'expires_epoch', dateutil.parser.parse(kwargs.get('expires_epoch')))
+        setattr(self, 'expires_at', dateutil.parser.parse(kwargs.get('expires_at')))
 
         
         setattr(self, 'btc_amount', Decimal(self.btc_amount))
@@ -457,8 +465,8 @@ class TransactionOrder(BaseModel):
 
         for (param, value) in kwargs.items():
             setattr(self, param, value)
-        setattr(self, 'created_at', dateutil.parser.parse(kwargs.get('created_at')))
-        setattr(self, 'expires_at', dateutil.parser.parse(kwargs.get('expires_epoch')))
+        #setattr(self, 'created_at', dateutil.parser.parse(kwargs.get('created_at')))
+        setattr(self, 'expires_at', dateutil.parser.parse(kwargs.get('expires_at')))
         if self.btc_amount:
             setattr(self, 'btc_amount', Decimal(self.btc_amount))
         if self.btc_pending:

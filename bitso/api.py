@@ -33,8 +33,8 @@ import requests
 from urllib import urlencode
 
 
-from bitso import (ApiError, ApiClientError, Ticker, OrderBook, Balance, Transaction,
-                     UserTransaction, Order, TransactionQuote, TransactionOrder, LedgerEntry)
+from bitso import (ApiError, ApiClientError, Ticker, OrderBook, Balance, Fee, Trade,
+                     UserTrade, Order, TransactionQuote, TransactionOrder, LedgerEntry, FundingDestination, Withdrawal, Funding)
 
 current_milli_time = lambda: str(int(round(time.time() * 1000)))
 
@@ -123,7 +123,7 @@ class Api(object):
         resp = self._request_url(url, 'GET', params=parameters)
         return OrderBook._NewFromJsonDict(resp['payload'])
 
-    def trades(self, book, time=None):
+    def trades(self, book, time=None, **kwargs):
         """Get a list of recent trades from the specified book.
 
         Args:
@@ -154,14 +154,14 @@ class Api(object):
             if time.lower() not in ('minute', 'hour'):
                 raise ApiClientError({u'message': u"time is not 'hour' or 'minute'"})
             parameters['time'] = time
-        if marker:
-            parameters['marker'] = marker
-        if limit:
-            parameters['limit'] = limit
-        if sort:
-            parameters['sort'] = sort
+        if 'marker' in kwargs:
+            parameters['marker'] = kwargs['marker']
+        if 'limit' in kwargs:
+            parameters['limit'] = kwargs['limit']
+        if 'sort' in kwargs:
+            parameters['sort'] = kwargs['sort']
         resp = self._request_url(url, 'GET', params=parameters)
-        return [Transaction._NewFromJsonDict(x) for x in resp['payload']]
+        return [Trade._NewFromJsonDict(x) for x in resp['payload']]
 
 
     def account_required_fields(self):
@@ -187,7 +187,7 @@ class Api(object):
         url = '%s/balance/' % self.base_url_v3
         headers = self._build_auth_header()
         resp = self._request_url(url, 'GET', headers=headers)
-        return [Balance._NewFromJsonDict(x) for x in resp['payload']]
+        return [Balance._NewFromJsonDict(x) for x in resp['payload']['balances']]
 
   
     def fees(self):
@@ -200,7 +200,7 @@ class Api(object):
         url = '%s/fees/' % self.base_url_v3
         headers = self._build_auth_header()
         resp = self._request_url(url, 'GET', headers=headers)
-        return [Fee._NewFromJsonDict(x) for x in resp['payload']]
+        return [Fee._NewFromJsonDict(x) for x in resp['payload']['fees']]
 
 
 
@@ -341,7 +341,7 @@ class Api(object):
                  raise ApiClientError({u'message': u"sort is not 'asc' or 'desc' "})
             parameters['sort'] = sort
         resp = self._request_url(url, 'GET', params=parameters)
-        return [UserTrades._NewFromJsonDict(x) for x in resp['payload']]
+        return [UserTrade._NewFromJsonDict(x) for x in resp['payload']]
     
 
     def open_orders(self, book=None):
@@ -358,14 +358,6 @@ class Api(object):
         url+='?book=%s' % book
         headers = self._build_auth_header()
         parameters = {}
-        if marker:
-            parameters['marker'] = marker
-        if limit:
-            parameters['limit'] = limit
-        if sort:
-            if not isinstance(sort, basestring) or sort.lower() not in ['asc', 'desc']:
-                 raise ApiClientError({u'message': u"sort is not 'asc' or 'desc' "})
-            parameters['sort'] = sort
         resp = self._request_url(url, 'GET', params=parameters, headers=headers)
         return [Order._NewFromJsonDict(x) for x in resp['payload']]
 
@@ -390,7 +382,7 @@ class Api(object):
         resp = self._request_url(url, 'GET', headers=headers)
         return [Order._NewFromJsonDict(x) for x in resp['payload']]
 
-    def cancel_order(self, order_id):
+    def cancel_order(self, oids):
         """Cancels an open order
 
         Args:
@@ -401,7 +393,7 @@ class Api(object):
           A list of Order IDs (OIDs) for the canceled orders. Orders may not be successfully cancelled if they have been filled, have been already cancelled, or the OIDs are incorrect.        
         """
         if isinstance(oids, basestring):
-            order_ids = [order_ids]        
+            oids = [oids]        
         url = '%s/orders/' % self.base_url_v3
         url+='%s/' % ('-'.join(oids))
         headers = self._build_auth_header()
@@ -441,12 +433,12 @@ class Api(object):
         headers = self._build_auth_header()
         parameters = {}
         parameters['book'] = book
-        if major:
-            parameters['major'] = str(major).encode('utf-8')
-        if minor:
-            parameters['minor'] = str(minor).encode('utf-8')
-        if price:
-            parameters['price'] = str(price).encode('utf-8')
+        if 'major' in kwargs:
+            parameters['major'] = str(kwargs['major']).encode('utf-8')
+        if 'minor' in kwargs:
+            parameters['minor'] = str(kwargs['minor']).encode('utf-8')
+        if 'price' in kwargs:
+            parameters['price'] = str(kwargs['price']).encode('utf-8')
         resp = self._request_url(url, 'POST', params=parameters, headers=headers)
         return Order._NewFromJsonDict(resp['payload']) 
 
@@ -539,7 +531,7 @@ class Api(object):
         parameters['amount'] = str(amount).encode('utf-8')
         parameters['address'] = address
         resp = self._request_url(url, 'POST', params=parameters, headers=headers)
-        return Withdrawal._NewFromJsonDict(resp['payload']
+        return Withdrawal._NewFromJsonDict(resp['payload'])
 
     
     def spei_withdrawal(self, amount=None, first_names=None, last_names=None, clabe=None, notes_ref=None, numeric_ref=None):
@@ -576,7 +568,7 @@ class Api(object):
         parameters['notes_ref'] = notes_ref
         parameters['numeric_ref'] = numeric_ref
         resp = self._request_url(url, 'POST', params=parameters, headers=headers)
-        return Withdrawal._NewFromJsonDict(resp['payload']
+        return Withdrawal._NewFromJsonDict(resp['payload'])
 
 
     def transfer_quote(self, amount=None, btc_amount=None, currency=None):
@@ -688,7 +680,7 @@ class Api(object):
         for k, v in kwargs.iteritems():
             parameters[k] = str(v).encode('utf-8')
         resp = self._request_url(url, 'POST', params=parameters)
-        return TransactionOrder._NewFromJsonDict(resp) 
+        return TransactionOrder._NewFromJsonDict(resp['payload']) 
 
              
     def transfer_status(self, transfer_id):
@@ -725,7 +717,7 @@ class Api(object):
                                             msg_concat.encode('utf-8'),
                                             hashlib.sha256).hexdigest()
 
-        return {'Authorization': 'Bitso %s:%s:%s' % (self.key, nonce, signature)}
+            return {'Authorization': 'Bitso %s:%s:%s' % (self.key, nonce, signature)}
 
     
     def _request_url(self, url, verb, params=None, headers=None):

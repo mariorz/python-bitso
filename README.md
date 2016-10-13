@@ -680,7 +680,7 @@ id | String | Transfer Order ID |
 payment_outlet_id | String | Payment Outlet ID | 
 qr_img_uri | String | Bitcoin payment QR Code URI | 
 user_uri | String | Transfer Order URI | 
-wallet_address | Bitcoin address you will send BTC to | 
+wallet_address | String | Bitcoin address you will send BTC to
 
 
 

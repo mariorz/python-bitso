@@ -29,14 +29,17 @@ import hmac
 import json
 import time
 import requests
-
+from urlparse import urlparse
 from urllib import urlencode
 
 
 from bitso import (ApiError, ApiClientError, Ticker, OrderBook, Balance, Fee, Trade,
-                     UserTrade, Order, TransactionQuote, TransactionOrder, LedgerEntry, FundingDestination, Withdrawal, Funding)
+                     UserTrade, Order, TransactionQuote, TransactionOrder, LedgerEntry, FundingDestination, Withdrawal, Funding, AvilableBook, AccountStatus)
 
-current_milli_time = lambda: str(int(round(time.time() * 1000)))
+def current_milli_time():
+    nonce =  str(int(round(time.time() * 1000000)))
+    return nonce
+    
 
 class Api(object):
     """A python interface for the Bitso API
@@ -56,30 +59,33 @@ class Api(object):
       To use the private endpoints, initiate bitso.Api with a client_id,
       api_key, and api_secret (see https://bitso.com/developers?shell#private-endpoints):
       
-        >>> api = bitso.Api(CLIENT_ID, API_KEY, API_SECRET)
+        >>> api = bitso.Api(API_KEY, API_SECRET)
         >>> balance = api.balance()
         >>> print balance.btc_available
         >>> print balance.mxn_available
     """
     
-    def __init__(self, client_id=None, key=None, secret=None):
+    def __init__(self, key=None, secret=None):
         """Instantiate a bitso.Api object.
         
         Args:
-          client_id:
-            Bitso Client ID
           key:
             Bitso API Key 
           secret:
             Bitso API Secret
+
+  
         """
         self.base_url = "https://bitso.com/api/v2"
-        self.base_url_v3 = "https://bitso.com/api/v3"
-        self.client_id = client_id
+        self.base_url_v3 = "http://bitso.lan/api/v3"
         self.key = key
         self._secret = secret
 
     def available_books(self):
+        """
+        Returns:
+          A list of bitso.AvilableBook instances
+        """
         url = '%s/available_books/' % self.base_url_v3
         resp = self._request_url(url, 'GET')
         return [AvilableBook._NewFromJsonDict(book) for book in resp['payload']]
@@ -90,7 +96,7 @@ class Api(object):
 
         Args:
           book (str):
-            Specifies which book to use. Default is btc_mxn
+            Specifies which book to use. 
             
         Returns:
           A bitso.Ticker instance.
@@ -103,7 +109,7 @@ class Api(object):
         return Ticker._NewFromJsonDict(resp['payload'])
 
 
-    def order_book(self, book):
+    def order_book(self, book, aggregate=True):
         """Get a public Bitso order book with a 
         list of all open orders in the specified book
         
@@ -111,6 +117,8 @@ class Api(object):
         Args:
           book (str):
             Specifies which book to use. Default is btc_mxn
+          aggregate (bool):
+            Specifies if orders should be aggregated by price
             
         Returns:
           A bitso.OrderBook instance.
@@ -120,18 +128,16 @@ class Api(object):
         url = '%s/order_book/' % self.base_url_v3
         parameters = {}
         parameters['book'] = book
+        parameters['aggregate'] = aggregate
         resp = self._request_url(url, 'GET', params=parameters)
         return OrderBook._NewFromJsonDict(resp['payload'])
 
-    def trades(self, book, time=None, **kwargs):
+    def trades(self, book, **kwargs):
         """Get a list of recent trades from the specified book.
 
         Args:
           book (str):
             Specifies which book to use. Default is btc_mxn
-          time (str, optional):
-            Time frame for transaction export ('minute', 'hour')
-            Default is 'hour'.
 
           marker (str, optional):
             Returns objects that are older or newer (depending on 'sort') than the object which
@@ -144,16 +150,12 @@ class Api(object):
 
             
         Returns:
-          A list of bitso.Transaction instances.        
+          A list of bitso.Trades instances.        
         """
 
         url = '%s/trades/' % self.base_url_v3
         parameters = {}
         parameters['book'] = book        
-        if time:
-            if time.lower() not in ('minute', 'hour'):
-                raise ApiClientError({u'message': u"time is not 'hour' or 'minute'"})
-            parameters['time'] = time
         if 'marker' in kwargs:
             parameters['marker'] = kwargs['marker']
         if 'limit' in kwargs:
@@ -164,6 +166,20 @@ class Api(object):
         return [Trade._NewFromJsonDict(x) for x in resp['payload']]
 
 
+        
+    def account_status(self):
+        """
+        Get a user's account status.
+
+        Returns:
+          A bitso.AccountStatus instance.        
+        """
+
+        url = '%s/account_status/' % self.base_url_v3
+        resp = self._request_url(url, 'GET', private=True)
+        return AccountStatus._NewFromJsonDict(resp['payload'])
+
+        
     def account_required_fields(self):
         url = '%s/account_required_fields/' % self.base_url_v3
         resp = self._request_url(url, 'GET')
@@ -177,7 +193,7 @@ class Api(object):
 
         
     
-    def balance(self):
+    def balances(self):
         """Get a user's balance.
 
         Returns:
@@ -185,8 +201,7 @@ class Api(object):
         """
 
         url = '%s/balance/' % self.base_url_v3
-        headers = self._build_auth_header()
-        resp = self._request_url(url, 'GET', headers=headers)
+        resp = self._request_url(url, 'GET', private=True)
         return [Balance._NewFromJsonDict(x) for x in resp['payload']['balances']]
 
   
@@ -198,8 +213,7 @@ class Api(object):
         """
 
         url = '%s/fees/' % self.base_url_v3
-        headers = self._build_auth_header()
-        resp = self._request_url(url, 'GET', headers=headers)
+        resp = self._request_url(url, 'GET', private=True)
         return [Fee._NewFromJsonDict(x) for x in resp['payload']['fees']]
 
 
@@ -224,7 +238,6 @@ class Api(object):
           A list bitso.LedgerEntry instances.
         """
         url = '%s/ledger/%s' % (self.base_url_v3, operations)
-        headers = self._build_auth_header()
         parameters = {}
         if marker:
             parameters['marker'] = marker
@@ -232,7 +245,9 @@ class Api(object):
             parameters['limit'] = limit
         if sort:
             parameters['sort'] = sort
-        resp = self._request_url(url, 'GET', params=parameters, headers=headers)
+
+        #headers = self._build_auth_header('GET', self._build_url(url, parameters))
+        resp = self._request_url(url, 'GET', params=parameters, private=True)
         return [LedgerEntry._NewFromJsonDict(entry) for entry in resp['payload']]
 
 
@@ -260,7 +275,6 @@ class Api(object):
         url = '%s/withdrawals/' % (self.base_url_v3)
         if wids:
             url+='%s/' % ('-'.join(wids))
-        headers = self._build_auth_header()
         parameters = {}
         if marker:
             parameters['marker'] = marker
@@ -268,7 +282,7 @@ class Api(object):
             parameters['limit'] = limit
         if sort:
             parameters['sort'] = sort
-        resp = self._request_url(url, 'GET', params=parameters, headers=headers)
+        resp = self._request_url(url, 'GET', params=parameters, private=True)
         return [Withdrawal._NewFromJsonDict(entry) for entry in resp['payload']]
 
 
@@ -296,7 +310,6 @@ class Api(object):
         url = '%s/fundings/' % (self.base_url_v3)
         if fids:
             url+='%s/' % ('-'.join(fids))
-        headers = self._build_auth_header()
         parameters = {}
         if marker:
             parameters['marker'] = marker
@@ -304,12 +317,12 @@ class Api(object):
             parameters['limit'] = limit
         if sort:
             parameters['sort'] = sort
-        resp = self._request_url(url, 'GET', params=parameters, headers=headers)
+        resp = self._request_url(url, 'GET', params=parameters, private=True)
         return [Funding._NewFromJsonDict(entry) for entry in resp['payload']]
 
     
         
-    def user_trades(self, book, marker=None, limit=25, sort='desc'):
+    def user_trades(self, tids=[], book=None, marker=None, limit=25, sort='desc'):
         """Get a list of the user's transactions
 
         Args:
@@ -329,8 +342,15 @@ class Api(object):
         """
 
         url = '%s/user_trades/' % self.base_url_v3
-        url+='?book=%s' % book
-        headers = self._build_auth_header()
+        if isinstance(tids, int):
+            tids = str(tids)
+        if isinstance(tids, basestring):
+            tids = [tids]
+        tids = map(str, tids)
+        if tids:
+            url+='%s/' % ('-'.join(tids))            
+        if book:
+            url+='?book=%s' % book
         parameters = {}
         if marker:
             parameters['marker'] = marker
@@ -340,7 +360,7 @@ class Api(object):
             if not isinstance(sort, basestring) or sort.lower() not in ['asc', 'desc']:
                  raise ApiClientError({u'message': u"sort is not 'asc' or 'desc' "})
             parameters['sort'] = sort
-        resp = self._request_url(url, 'GET', params=parameters)
+        resp = self._request_url(url, 'GET', params=parameters, private=True)
         return [UserTrade._NewFromJsonDict(x) for x in resp['payload']]
     
 
@@ -356,9 +376,8 @@ class Api(object):
         """
         url = '%s/open_orders/' % self.base_url_v3
         url+='?book=%s' % book
-        headers = self._build_auth_header()
         parameters = {}
-        resp = self._request_url(url, 'GET', params=parameters, headers=headers)
+        resp = self._request_url(url, 'GET', params=parameters, private=True)
         return [Order._NewFromJsonDict(x) for x in resp['payload']]
 
 
@@ -373,13 +392,11 @@ class Api(object):
           A list of bitso.Order instances.        
         """
         if isinstance(oids, basestring):
-            order_ids = [order_ids]
+            oids = [oids]
         url = '%s/orders/' % self.base_url_v3
         if oids:
             url+='%s/' % ('-'.join(oids))
-        headers = self._build_auth_header()
-
-        resp = self._request_url(url, 'GET', headers=headers)
+        resp = self._request_url(url, 'GET', private=True)
         return [Order._NewFromJsonDict(x) for x in resp['payload']]
 
     def cancel_order(self, oids):
@@ -396,11 +413,10 @@ class Api(object):
             oids = [oids]        
         url = '%s/orders/' % self.base_url_v3
         url+='%s/' % ('-'.join(oids))
-        headers = self._build_auth_header()
-        resp = self._request_url(url, 'DELETE', headers=headers)
+        resp = self._request_url(url, 'DELETE', private=True)
         return resp['payload']
 
-    def place_order(self, book, side, order_type, **kwargs):
+    def place_order(self, **kwargs):
         """Places a buy limit order.
 
         Args:
@@ -422,48 +438,45 @@ class Api(object):
           A bitso.Order instance.        
         """
 
-        if book is None:
+        if kwargs.get('book') is None:
             raise ApiClientError({u'message': u'book not specified.'})
-        if side is None:
+        if kwargs.get('side') is None:
             raise ApiClientError({u'message': u'side not specified.'})
-        if order_type is None:
-            raise ApiClientError({u'message': u'order_type not specified.'})
+        if kwargs.get('type') is None:
+            raise ApiClientError({u'message': u'order type not specified.'})
 
         url = '%s/orders/' % self.base_url_v3
-        headers = self._build_auth_header()
         parameters = {}
-        parameters['book'] = book
+        parameters['book'] = kwargs.get('book')
+        parameters['type'] = kwargs.get('type')
+        parameters['side'] = kwargs.get('side')
         if 'major' in kwargs:
             parameters['major'] = str(kwargs['major']).encode('utf-8')
         if 'minor' in kwargs:
             parameters['minor'] = str(kwargs['minor']).encode('utf-8')
         if 'price' in kwargs:
             parameters['price'] = str(kwargs['price']).encode('utf-8')
-        resp = self._request_url(url, 'POST', params=parameters, headers=headers)
-        return Order._NewFromJsonDict(resp['payload']) 
+
+        resp = self._request_url(url, 'POST', params=parameters, private=True)
+        return resp['payload']
 
 
 
-    def funding_destination(self, fund_currency, converted_currency=None):
+    def funding_destination(self, fund_currency):
         """Returns account funding information for specified currencies.
 
         Args:
           fund_currency (str):
             Specifies which book to use. 
-          converted_currency (str, optional):
-            the order side (buy or sell) 
 
         
         Returns:
           A bitso.Funding Destination instance.      
         """
         url = '%s/funding_destination/' % self.base_url_v3
-        headers = self._build_auth_header()
         parameters = {}
         parameters['fund_currency'] = fund_currency
-        if converted_currency:
-            parameters['converted_currency'] = converted_currency
-        resp = self._request_url(url, 'GET', params=parameters, headers=headers)
+        resp = self._request_url(url, 'GET', params=parameters, private=True)
         return FundingDestination._NewFromJsonDict(resp['payload']) 
     
 
@@ -480,11 +493,10 @@ class Api(object):
           ok      
         """
         url = '%s/bitcoin_withdrawal/' % self.base_url_v3
-        headers = self._build_auth_header()
         parameters = {}
         parameters['amount'] = str(amount).encode('utf-8')
         parameters['address'] = address
-        resp = self._request_url(url, 'POST', params=parameters, headers=headers)
+        resp = self._request_url(url, 'POST', params=parameters, private=True)
         return Withdrawal._NewFromJsonDict(resp['payload'])
 
 
@@ -501,11 +513,10 @@ class Api(object):
           ok      
         """
         url = '%s/ether_withdrawal/' % self.base_url_v3
-        headers = self._build_auth_header()
         parameters = {}
         parameters['amount'] = str(amount).encode('utf-8')
         parameters['address'] = address
-        resp = self._request_url(url, 'POST', params=parameters, headers=headers)
+        resp = self._request_url(url, 'POST', params=parameters, private=True)
         return Withdrawal._NewFromJsonDict(resp['payload'])
 
     
@@ -525,12 +536,11 @@ class Api(object):
         """
 
         url = '%s/ripple_withdrawal/' % self.base_url_v3
-        headers = self._build_auth_header()
         parameters = {}
         parameters['currency'] = str(currency).encode('utf-8')
         parameters['amount'] = str(amount).encode('utf-8')
         parameters['address'] = address
-        resp = self._request_url(url, 'POST', params=parameters, headers=headers)
+        resp = self._request_url(url, 'POST', params=parameters, private=True)
         return Withdrawal._NewFromJsonDict(resp['payload'])
 
     
@@ -559,7 +569,6 @@ class Api(object):
 
         
         url = '%s/spei_withdrawal/' % self.base_url_v3
-        headers = self._build_auth_header()
         parameters = {}
         parameters['amount'] = str(amount).encode('utf-8')
         parameters['recipient_given_names'] = first_names
@@ -567,7 +576,7 @@ class Api(object):
         parameters['clabe'] = clabe
         parameters['notes_ref'] = notes_ref
         parameters['numeric_ref'] = numeric_ref
-        resp = self._request_url(url, 'POST', params=parameters, headers=headers)
+        resp = self._request_url(url, 'POST', params=parameters, private=True)
         return Withdrawal._NewFromJsonDict(resp['payload'])
 
 
@@ -602,7 +611,7 @@ class Api(object):
             raise ApiClientError({u'message': u"'amount' and 'btc_amount' are mutually exclusive. Pick one"})
         
         url = '%s/transfer_quote' % self.base_url
-        parameters = self._build_auth_payload()
+        parameters = {}
         if amount:
             parameters['amount'] = str(amount).encode('utf-8')
         elif btc_amount:
@@ -610,7 +619,7 @@ class Api(object):
 
         parameters['currency'] = currency
         parameters['full'] = True
-        resp = self._request_url(url, 'POST', params=parameters)
+        resp = self._request_url(url, 'POST', params=parameters, private=True)
         return TransactionQuote._NewFromJsonDict(resp['payload']) 
 
 
@@ -668,7 +677,7 @@ class Api(object):
 
 
         url = '%s/transfer_create' % self.base_url
-        parameters = self._build_auth_payload()
+        parameters = {}
         if amount:
             parameters['amount'] = str(amount).encode('utf-8')
         elif btc_amount:
@@ -679,7 +688,7 @@ class Api(object):
         parameters['payment_outlet'] = payment_outlet
         for k, v in kwargs.iteritems():
             parameters[k] = str(v).encode('utf-8')
-        resp = self._request_url(url, 'POST', params=parameters)
+        resp = self._request_url(url, 'POST', params=parameters, private=True)
         return TransactionOrder._NewFromJsonDict(resp['payload']) 
 
              
@@ -695,8 +704,8 @@ class Api(object):
         if transfer_id is None:
             raise ApiClientError({u'message': u"'transfer_id' not specified"})
         url = '%s/transfer/%s' % (self.base_url, transfer_id)
-        parameters = self._build_auth_payload()
-        resp = self._request_url(url, 'GET', params=parameters)
+        parameters = {}
+        resp = self._request_url(url, 'GET', params=parameters, private=True)
         return TransactionOrder._NewFromJsonDict(resp)
 
     
@@ -710,19 +719,30 @@ class Api(object):
                                            hashlib.sha256).hexdigest()
         return parameters
 
-    def _build_auth_header(self):
-            nonce = current_milli_time()
-            msg_concat = nonce+self.client_id+self.key
-            signature = hmac.new(self._secret.encode('utf-8'),
-                                            msg_concat.encode('utf-8'),
-                                            hashlib.sha256).hexdigest()
-
-            return {'Authorization': 'Bitso %s:%s:%s' % (self.key, nonce, signature)}
+    def _build_auth_header(self, http_method, url, json_payload=''):
+        if json_payload == {}:
+            json_payload = ''
+        url_components = urlparse(url)
+        request_path = url_components.path
+        if url_components.query != '':
+            request_path+='?'+url_components.query
+        print request_path
+        nonce = current_milli_time()
+        msg_concat = nonce+http_method.upper()+request_path+json_payload
+        signature = hmac.new(self._secret.encode('utf-8'),
+                                 msg_concat.encode('utf-8'),
+                                 hashlib.sha256).hexdigest()
+        return {'Authorization': 'Bitso %s:%s:%s' % (self.key, nonce, signature)}
 
     
-    def _request_url(self, url, verb, params=None, headers=None):
+    def _request_url(self, url, verb, params=None, private=False):
+        headers=None
+        if private:
+            headers = self._build_auth_header(verb, url)
         if verb == 'GET':
             url = self._build_url(url, params)
+            if private:
+                headers = self._build_auth_header(verb, url)
             try:
                 resp = requests.get(url, headers=headers)
             except requests.RequestException as e:

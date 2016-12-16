@@ -59,11 +59,34 @@ class AvilableBook(BaseModel):
         for (param, val) in self._default_params.items():
             setattr(self, param, val)
 
-
     def __repr__(self):
         return "AvilableBook(book={book})".format(book=self.book)
             
 
+
+class AccountStatus(BaseModel):
+    def __init__(self, **kwargs):
+        self._default_params = {
+            'client_id': kwargs.get('client_id'),
+            'status': kwargs.get('status'),
+            'cellphone_number': kwargs.get('cellphone_number'),
+            'official_id': kwargs.get('official_id'),
+            'proof_of_residency': kwargs.get('proof_of_residency'),
+            'signed_contract': kwargs.get('signed_contract'),
+            'origin_of_funds': kwargs.get('origin_of_funds'),
+            'daily_limit': Decimal(kwargs.get('daily_limit')),
+            'monthly_limit': Decimal(kwargs.get('monthly_limit')),
+            'daily_remaining': Decimal(kwargs.get('daily_remaining')),
+            'monthly_remaining': Decimal(kwargs.get('monthly_remaining'))
+        }
+        
+        for (param, val) in self._default_params.items():
+            setattr(self, param, val)
+
+    def __repr__(self):
+        return "AccountStatus(client_id={client_id})".format(client_id=self.client_id)
+            
+    
 
 class AccountRequiredField(BaseModel):
     def __init__(self, **kwargs):
@@ -74,7 +97,6 @@ class AccountRequiredField(BaseModel):
         
         for (param, val) in self._default_params.items():
             setattr(self, param, val)
-
 
     def __repr__(self):
         return "AccountRequiredField(name={name})".format(name=self.name)
@@ -117,24 +139,24 @@ class PublicOrder(BaseModel):
         self._default_params = {
             'book': kwargs.get('book'),
             'price': Decimal(kwargs.get('price')),
-            'amount': Decimal(kwargs.get('amount')),
-            'created_at': dateutil.parser.parse(kwargs.get('created_at'))
+            'amount': Decimal(kwargs.get('amount'))
         }
 
-        if kwargs.get('updated_at') == None:
-            setattr(self, 'updated_at', None)
-        else:
-            setattr(self, 'updated_at',  dateutil.parser.parse(kwargs.get('updated_at')))
             
         for (param, val) in self._default_params.items():
             setattr(self, param, val)
 
+        if kwargs.get('oid'):
+            setattr(self, 'oid',  kwargs.get('oid'))
+        else:
+            setattr(self, 'oid',  None)
+
+
     def __repr__(self):
-        return "PublcOrder(book={book},price={price}, amount={amount}, created_at={created_at})".format(
+        return "PublicOrder(book={book},price={price}, amount={amount})".format(
             book=self.book,
             price=self.price,
-            amount=self.amount,
-            created_at=self.created_at)
+            amount=self.amount)
 
 
             
@@ -146,7 +168,8 @@ class OrderBook(BaseModel):
         self._default_params = {
             'asks': kwargs.get('asks'),
             'bids': kwargs.get('bids'),
-            'created_at': dateutil.parser.parse(kwargs.get('created_at'))
+            'updated_at': dateutil.parser.parse(kwargs.get('updated_at')),
+            'sequence': int(kwargs.get('sequence'))
         }
 
         for (param, val) in self._default_params.items():
@@ -160,10 +183,10 @@ class OrderBook(BaseModel):
 
 
     def __repr__(self):
-        return "OrderBook({num_asks} asks, {num_bids} bids, timestamp={timestamp})".format(
+        return "OrderBook({num_asks} asks, {num_bids} bids, updated_at={updated_at})".format(
             num_asks=len(self.asks),
             num_bids=len(self.bids),
-            timestamp=self.timestamp)
+            updated_at=self.updated_at)
 
 
 
@@ -209,8 +232,8 @@ class Fee(BaseModel):
             setattr(self, param, val)
             
     def __repr__(self):
-        return "Fees(currency={currency}, fee_percent={fee_percent})".format(
-            currency=self.currency,
+        return "Fees(book={book}, fee_percent={fee_percent})".format(
+            book=self.book,
             fee_percent=self.fee_percent)
 
     
@@ -226,7 +249,7 @@ class Trade(BaseModel):
             'tid': kwargs.get('tid'),
             'amount': Decimal(kwargs.get('amount')),
             'price': Decimal(kwargs.get('price')),
-            'side': kwargs.get('side'),
+            'maker_side': kwargs.get('maker_side'),
             'created_at': dateutil.parser.parse(kwargs.get('created_at'))
         }
 
@@ -234,12 +257,12 @@ class Trade(BaseModel):
             setattr(self, param, val)
 
     def __repr__(self):
-        return "Transaction(tid={tid}, price={price}, amount={amount}, side={side}, datetime={datetime})".format(
+        return "Trade(tid={tid}, price={price}, amount={amount}, maker_side={maker_side}, created_at={created_at})".format(
             tid=self.tid,
             price=self.price,
             amount=self.amount,
-            side=self.side,
-            datetime=self.datetime)
+            maker_side=self.maker_side,
+            created_at=self.created_at)
 
 class Withdrawal(BaseModel):
 
@@ -271,7 +294,7 @@ class Funding(BaseModel):
     
     def __init__(self, **kwargs):
         self._default_params = {
-            'fid': kwargs.get('wid'),
+            'fid': kwargs.get('fid'),
             'status': kwargs.get('status'),
             'created_at': dateutil.parser.parse(kwargs.get('created_at')),
             'currency': kwargs.get('currency'),
@@ -314,7 +337,7 @@ class UserTrade(BaseModel):
 
     def __repr__(self):
         return "UserTrade(tid={tid}, book={book}, price={price}, major={major}, minor={minor})".format(
-            fid=self.fid,
+            tid=self.tid,
             book=self.book,
             price=self.price,
             major=self.major,
@@ -357,30 +380,37 @@ class Order(BaseModel):
             'book': kwargs.get('book'),
             'oid': kwargs.get('oid'),
             'created_at': dateutil.parser.parse(kwargs.get('created_at')),
-            'amount': Decimal(kwargs.get('amount')),
+            'updated_at': kwargs.get('updated_at'),
+            'original_amount': kwargs.get('original_amount'),
+            'unfilled_amount': Decimal(kwargs.get('unfilled_amount')),
             'price': Decimal(kwargs.get('price')),
             'side': kwargs.get('side'),
             'status': kwargs.get('status'),
             'type': kwargs.get('type')
         }
-
-        if kwargs.get('updated_at') == None:
-            setattr(self, 'updated_at', None)
-        else:
-            setattr(self, 'updated_at',  dateutil.parser.parse(kwargs.get('updated_at')))
-            
-
-
         for (param, val) in self._default_params.items():
             setattr(self, param, val)
 
+            setattr(self, 'updated_at',  dateutil.parser.parse(kwargs.get('updated_at')))
+
+        if kwargs.get('original_amount') != None:
+            setattr(self, 'original_amount',  Decimal(kwargs.get('original_amount')))
+        if kwargs.get('original_value') != None:
+            setattr(self, 'original_value',  Decimal(kwargs.get('original_value')))        
+        if kwargs.get('updated_at') != None:
+            setattr(self, 'updated_at',  dateutil.parser.parse(kwargs.get('updated_at'))
+
+
+
+    
+
 
     def __repr__(self):
-        return "Order(oid={oid}, type={type}, price={price}, amount={amount})".format(
+        return "Order(oid={oid}, type={type}, price={price}, original_amount={original_amount})".format(
             oid=self.oid,
             type=self.type,
             price=self.price,
-            amount=self.amount)
+            original_amount=self.original_amount)
 
 
 

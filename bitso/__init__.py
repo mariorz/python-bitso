@@ -40,7 +40,9 @@ from .models import (
     BalanceUpdate,
     FundingDestination,
     Withdrawal,
-    Funding
+    Funding,
+    AvilableBook,
+    AccountStatus
 )
 
 from .api import Api

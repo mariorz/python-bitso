@@ -76,8 +76,8 @@ class Api(object):
 
   
         """
-        self.base_url = "https://bitso.com/api/v2"
-        self.base_url_v3 = "http://bitso.lan/api/v3"
+        self.base_url_v2 = "https://bitso.com/api/v2"
+        self.base_url = "http://bitso.lan/api/v3"
         self.key = key
         self._secret = secret
 
@@ -86,7 +86,7 @@ class Api(object):
         Returns:
           A list of bitso.AvilableBook instances
         """
-        url = '%s/available_books/' % self.base_url_v3
+        url = '%s/available_books/' % self.base_url
         resp = self._request_url(url, 'GET')
         return [AvilableBook._NewFromJsonDict(book) for book in resp['payload']]
 
@@ -102,7 +102,7 @@ class Api(object):
           A bitso.Ticker instance.
         
         """
-        url = '%s/ticker/' % self.base_url_v3
+        url = '%s/ticker/' % self.base_url
         parameters = {}
         parameters['book'] = book
         resp = self._request_url(url, 'GET', params=parameters)
@@ -125,7 +125,7 @@ class Api(object):
         
         """
 
-        url = '%s/order_book/' % self.base_url_v3
+        url = '%s/order_book/' % self.base_url
         parameters = {}
         parameters['book'] = book
         parameters['aggregate'] = aggregate
@@ -153,7 +153,7 @@ class Api(object):
           A list of bitso.Trades instances.        
         """
 
-        url = '%s/trades/' % self.base_url_v3
+        url = '%s/trades/' % self.base_url
         parameters = {}
         parameters['book'] = book        
         if 'marker' in kwargs:
@@ -175,19 +175,19 @@ class Api(object):
           A bitso.AccountStatus instance.        
         """
 
-        url = '%s/account_status/' % self.base_url_v3
+        url = '%s/account_status/' % self.base_url
         resp = self._request_url(url, 'GET', private=True)
         return AccountStatus._NewFromJsonDict(resp['payload'])
 
         
     def account_required_fields(self):
-        url = '%s/account_required_fields/' % self.base_url_v3
+        url = '%s/account_required_fields/' % self.base_url
         resp = self._request_url(url, 'GET')
         return [AccountRequiredField._NewFromJsonDict(x) for x in resp['payload']]
 
 
     def create_account(self, **kwargs):
-        url = '%s/accounts/' % self.base_url_v3
+        url = '%s/accounts/' % self.base_url
         resp = self._request_url(url, 'POST', params=kwargs)
         return [AccountRequiredField._NewFromJsonDict(x) for x in resp['payload']]
 
@@ -200,7 +200,7 @@ class Api(object):
           A list of bitso.Balance instances.        
         """
 
-        url = '%s/balance/' % self.base_url_v3
+        url = '%s/balance/' % self.base_url
         resp = self._request_url(url, 'GET', private=True)
         return [Balance._NewFromJsonDict(x) for x in resp['payload']['balances']]
 
@@ -212,7 +212,7 @@ class Api(object):
           A list bitso.Fees instances.        
         """
 
-        url = '%s/fees/' % self.base_url_v3
+        url = '%s/fees/' % self.base_url
         resp = self._request_url(url, 'GET', private=True)
         return [Fee._NewFromJsonDict(x) for x in resp['payload']['fees']]
 
@@ -237,7 +237,7 @@ class Api(object):
         Returns:
           A list bitso.LedgerEntry instances.
         """
-        url = '%s/ledger/%s' % (self.base_url_v3, operations)
+        url = '%s/ledger/%s' % (self.base_url, operations)
         parameters = {}
         if marker:
             parameters['marker'] = marker
@@ -272,7 +272,7 @@ class Api(object):
         if isinstance(wids, basestring):
             wids = [wids]
         
-        url = '%s/withdrawals/' % (self.base_url_v3)
+        url = '%s/withdrawals/' % (self.base_url)
         if wids:
             url+='%s/' % ('-'.join(wids))
         parameters = {}
@@ -307,7 +307,7 @@ class Api(object):
         if isinstance(fids, basestring):
             fids = [fids]
         
-        url = '%s/fundings/' % (self.base_url_v3)
+        url = '%s/fundings/' % (self.base_url)
         if fids:
             url+='%s/' % ('-'.join(fids))
         parameters = {}
@@ -341,7 +341,7 @@ class Api(object):
           A list bitso.UserTrade instances.        
         """
 
-        url = '%s/user_trades/' % self.base_url_v3
+        url = '%s/user_trades/' % self.base_url
         if isinstance(tids, int):
             tids = str(tids)
         if isinstance(tids, basestring):
@@ -374,7 +374,7 @@ class Api(object):
         Returns:
           A list of bitso.Order instances.        
         """
-        url = '%s/open_orders/' % self.base_url_v3
+        url = '%s/open_orders/' % self.base_url
         url+='?book=%s' % book
         parameters = {}
         resp = self._request_url(url, 'GET', params=parameters, private=True)
@@ -393,7 +393,7 @@ class Api(object):
         """
         if isinstance(oids, basestring):
             oids = [oids]
-        url = '%s/orders/' % self.base_url_v3
+        url = '%s/orders/' % self.base_url
         if oids:
             url+='%s/' % ('-'.join(oids))
         resp = self._request_url(url, 'GET', private=True)
@@ -411,7 +411,7 @@ class Api(object):
         """
         if isinstance(oids, basestring):
             oids = [oids]        
-        url = '%s/orders/' % self.base_url_v3
+        url = '%s/orders/' % self.base_url
         url+='%s/' % ('-'.join(oids))
         resp = self._request_url(url, 'DELETE', private=True)
         return resp['payload']
@@ -445,7 +445,7 @@ class Api(object):
         if kwargs.get('type') is None:
             raise ApiClientError({u'message': u'order type not specified.'})
 
-        url = '%s/orders/' % self.base_url_v3
+        url = '%s/orders/' % self.base_url
         parameters = {}
         parameters['book'] = kwargs.get('book')
         parameters['type'] = kwargs.get('type')
@@ -473,7 +473,7 @@ class Api(object):
         Returns:
           A bitso.Funding Destination instance.      
         """
-        url = '%s/funding_destination/' % self.base_url_v3
+        url = '%s/funding_destination/' % self.base_url
         parameters = {}
         parameters['fund_currency'] = fund_currency
         resp = self._request_url(url, 'GET', params=parameters, private=True)
@@ -492,7 +492,7 @@ class Api(object):
         Returns:
           ok      
         """
-        url = '%s/bitcoin_withdrawal/' % self.base_url_v3
+        url = '%s/bitcoin_withdrawal/' % self.base_url
         parameters = {}
         parameters['amount'] = str(amount).encode('utf-8')
         parameters['address'] = address
@@ -512,7 +512,7 @@ class Api(object):
         Returns:
           ok      
         """
-        url = '%s/ether_withdrawal/' % self.base_url_v3
+        url = '%s/ether_withdrawal/' % self.base_url
         parameters = {}
         parameters['amount'] = str(amount).encode('utf-8')
         parameters['address'] = address
@@ -535,7 +535,7 @@ class Api(object):
           ok      
         """
 
-        url = '%s/ripple_withdrawal/' % self.base_url_v3
+        url = '%s/ripple_withdrawal/' % self.base_url
         parameters = {}
         parameters['currency'] = str(currency).encode('utf-8')
         parameters['amount'] = str(amount).encode('utf-8')
@@ -568,7 +568,7 @@ class Api(object):
         """
 
         
-        url = '%s/spei_withdrawal/' % self.base_url_v3
+        url = '%s/spei_withdrawal/' % self.base_url
         parameters = {}
         parameters['amount'] = str(amount).encode('utf-8')
         parameters['recipient_given_names'] = first_names
@@ -706,7 +706,7 @@ class Api(object):
         url = '%s/transfer/%s' % (self.base_url, transfer_id)
         parameters = {}
         resp = self._request_url(url, 'GET', params=parameters, private=True)
-        return TransactionOrder._NewFromJsonDict(resp)
+        return TransactionOrder._NewFromJsonDict(resp['payload'])
 
     
     def _build_auth_payload(self):
@@ -726,7 +726,6 @@ class Api(object):
         request_path = url_components.path
         if url_components.query != '':
             request_path+='?'+url_components.query
-        print request_path
         nonce = current_milli_time()
         msg_concat = nonce+http_method.upper()+request_path+json_payload
         signature = hmac.new(self._secret.encode('utf-8'),
@@ -791,9 +790,8 @@ class Api(object):
         return data
 
     def _check_for_api_error(self, data):
-        if 'success' in data:
-            if data['success'] != True:
-                raise ApiError(data['error'])
+        if data['success'] != True:
+            raise ApiError(data['error'])
         if 'error' in data:
             raise ApiError(data['error'])
         if isinstance(data, (list, tuple)) and len(data)>0:

@@ -390,7 +390,6 @@ class Order(BaseModel):
         }
         for (param, val) in self._default_params.items():
             setattr(self, param, val)
-
             setattr(self, 'updated_at',  dateutil.parser.parse(kwargs.get('updated_at')))
 
         if kwargs.get('original_amount') != None:
@@ -398,11 +397,7 @@ class Order(BaseModel):
         if kwargs.get('original_value') != None:
             setattr(self, 'original_value',  Decimal(kwargs.get('original_value')))        
         if kwargs.get('updated_at') != None:
-            setattr(self, 'updated_at',  dateutil.parser.parse(kwargs.get('updated_at'))
-
-
-
-    
+            setattr(self, 'updated_at',  dateutil.parser.parse(kwargs.get('updated_at')))
 
 
     def __repr__(self):
@@ -496,7 +491,7 @@ class TransactionOrder(BaseModel):
         for (param, value) in kwargs.items():
             setattr(self, param, value)
         #setattr(self, 'created_at', dateutil.parser.parse(kwargs.get('created_at')))
-        setattr(self, 'expires_at', dateutil.parser.parse(kwargs.get('expires_at')))
+        setattr(self, 'expires_at', dateutil.parser.parse(self.expires_at))
         if self.btc_amount:
             setattr(self, 'btc_amount', Decimal(self.btc_amount))
         if self.btc_pending:

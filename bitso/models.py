@@ -398,7 +398,7 @@ class Order(BaseModel):
         if kwargs.get('original_value') != None:
             setattr(self, 'original_value',  Decimal(kwargs.get('original_value')))        
         if kwargs.get('updated_at') != None:
-            setattr(self, 'updated_at',  dateutil.parser.parse(kwargs.get('updated_at'))
+            setattr(self, 'updated_at',  dateutil.parser.parse(kwargs.get('updated_at')))
 
 
 

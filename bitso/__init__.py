@@ -42,7 +42,8 @@ from .models import (
     Withdrawal,
     Funding,
     AvilableBook,
-    AccountStatus
+    AccountStatus,
+    AccountRequiredField
 )
 
 from .api import Api

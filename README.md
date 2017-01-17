@@ -341,7 +341,7 @@ s5ntlud6oupippk8iigw5dazjdxwq5vibjcwdp32ksl9i4h0nyxsc8svlpscuov5
 u'true' #on success
 ```
 
-### Buy Limit Order ###
+### Buy Order ###
 
 ```python
 ## Places a buy limit order.
@@ -382,13 +382,19 @@ Order(order_id=whtyptv0f348fajdydoswcf6cj20d0kahd97647l7ctnnd1lrpdn2suebwfpxz0f,
 ```
 
 
-### Bitcoin Deposit Address ###
+### Fungind Destination Address ###
 
 ```python
-## Gets a Bitcoin deposit address to fund your account
->>> api.btc_deposit_address()
+## Gets a Funding destination address to fund your account
+## fund_currency  - Specifies the currency you want to fund your account with (btc, eth, mxn)
+##                            - str
+>>> fd = api.funding_destination(''btc')
+>>> fd
+FundingDestination(account_identifier_name=Bitcoin address)
+## Returns a FundingDestination object
+>>> fd.account_identifier
 u'3CEWgs1goBbafUoThjWff4oX4wQKfxqpeV'
-## Returns a Bitcoin address
+## account_identifier attribute is the address you can use to fund your account
 ```
 
 

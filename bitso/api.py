@@ -34,7 +34,7 @@ from urllib import urlencode
 
 
 from bitso import (ApiError, ApiClientError, Ticker, OrderBook, Balance, Fee, Trade,
-                     UserTrade, Order, TransactionQuote, TransactionOrder, LedgerEntry, FundingDestination, Withdrawal, Funding, AvilableBook, AccountStatus)
+                     UserTrade, Order, TransactionQuote, TransactionOrder, LedgerEntry, FundingDestination, Withdrawal, Funding, AvilableBook, AccountStatus, AccountRequiredField)
 
 def current_milli_time():
     nonce =  str(int(round(time.time() * 1000000)))
@@ -77,7 +77,7 @@ class Api(object):
   
         """
         self.base_url_v2 = "https://bitso.com/api/v2"
-        self.base_url = "http://bitso.lan/api/v3"
+        self.base_url = "https://bitso.com/api/v3"
         self.key = key
         self._secret = secret
 
@@ -189,7 +189,7 @@ class Api(object):
     def create_account(self, **kwargs):
         url = '%s/accounts/' % self.base_url
         resp = self._request_url(url, 'POST', params=kwargs)
-        return [AccountRequiredField._NewFromJsonDict(x) for x in resp['payload']]
+        return resp['payload']
 
         
     
@@ -442,7 +442,7 @@ class Api(object):
             raise ApiClientError({u'message': u'book not specified.'})
         if kwargs.get('side') is None:
             raise ApiClientError({u'message': u'side not specified.'})
-        if kwargs.get('type') is None:
+        if kwargs.get('order_type') is None:
             raise ApiClientError({u'message': u'order type not specified.'})
 
         url = '%s/orders/' % self.base_url
@@ -458,7 +458,7 @@ class Api(object):
             parameters['price'] = str(kwargs['price']).encode('utf-8')
 
         resp = self._request_url(url, 'POST', params=parameters, private=True)
-        return resp['payload']
+        return Order._NewFromJsonDict(resp['payload']) 
 
 
 
@@ -545,8 +545,9 @@ class Api(object):
 
     
     def spei_withdrawal(self, amount=None, first_names=None, last_names=None, clabe=None, notes_ref=None, numeric_ref=None):
-        """Triggers a SPEI withdrawal from your account. These withdrawals are
-        immediate during banking hours (M-F 9:00AM - 5:00PM Mexico City Time).
+        """Triggers a SPEI withdrawal from your account.
+        These withdrawals are immediate during banking hours for some banks (M-F 9:00AM - 5:00PM Mexico City Time), 24 hours for others.
+
 
         Args:
           amount (str):
@@ -579,6 +580,97 @@ class Api(object):
         resp = self._request_url(url, 'POST', params=parameters, private=True)
         return Withdrawal._NewFromJsonDict(resp['payload'])
 
+
+    def debit_card_withdrawal(self, amount=None, first_names=None, last_names=None, card_number=None, bank_code=None):
+        """Triggers a Debit Cards withdrawal from your account. These withdrawals are immediate during banking hours for some 
+        banks (M-F 9:00AM - 5:00PM Mexico City Time), 24 hours for others.
+
+
+
+        Args:
+          amount (str):
+            The amount of MXN to withdraw from your account
+          recipient_given_names (str):
+            The recipient's first and middle name(s)
+          recipient_family_names (str):
+            The recipient's last names
+          clabe (str):
+            The CLABE number where the funds will be sent to
+            https://en.wikipedia.org/wiki/CLABE
+          notes_ref (str):
+            The alpha-numeric reference number for this SPEI
+          numeric_ref (str):
+            The numeric reference for this SPEI
+        
+        Returns:
+          ok      
+        """
+
+        
+        url = '%s/card_withdrawal/' % self.base_url
+        parameters = {}
+        parameters['amount'] = str(amount).encode('utf-8')
+        parameters['recipient_given_names'] = first_names
+        parameters['recipient_family_names'] = last_names
+        parameters['card_number'] = card_number
+        parameters['bank_code'] = bank_code
+        resp = self._request_url(url, 'POST', params=parameters, private=True)
+        return Withdrawal._NewFromJsonDict(resp['payload'])
+
+    
+    def phone_withdrawal(self, amount=None, first_names=None, last_names=None, phone_number=None, bank_code=None):
+        """Triggers a withdrawal from your account to a phone number. (Phone number must be registered for SPEI Transfers with their corresponding bank) These withdrawals are immediate during banking hours for some banks (M-F 9:00AM - 5:00PM Mexico City Time), 24 hours for others.
+
+        Args:
+          amount (str):
+            The amount of MXN to withdraw from your account
+          recipient_given_names (str):
+            The recipient's first and middle name(s)
+          recipient_family_names (str):
+            The recipient's last names
+          clabe (str):
+            The CLABE number where the funds will be sent to
+            https://en.wikipedia.org/wiki/CLABE
+          notes_ref (str):
+            The alpha-numeric reference number for this SPEI
+          numeric_ref (str):
+            The numeric reference for this SPEI
+        
+        Returns:
+          ok      
+        """
+
+        
+        url = '%s/card_withdrawal/' % self.base_url
+        parameters = {}
+        parameters['amount'] = str(amount).encode('utf-8')
+        parameters['recipient_given_names'] = first_names
+        parameters['recipient_family_names'] = last_names
+        parameters['phone_number'] = phone_number
+        parameters['bank_code'] = bank_code
+        resp = self._request_url(url, 'POST', params=parameters, private=True)
+        return Withdrawal._NewFromJsonDict(resp['payload'])
+
+
+    
+    
+    
+    def bank_codes(self):
+        """Gets codes for banks to be used in debit_card_withdrawal/phone_number_withdrawal
+
+        Returns:
+          A Dictinoary with the name of each bank as keys and it's corresponding key as values
+        """
+
+        url = '%s/fees/' % self.base_url
+        resp = self._request_url(url, 'GET', private=True)
+        banks = {}
+        for bank_item in resp['payload']:
+            banks[bank_item['name']] = bank_item['code']
+        return banks
+
+        
+    
 
     def transfer_quote(self, amount=None, btc_amount=None, currency=None):
         """Get a quote for a transfer for various Bitso Outlets.

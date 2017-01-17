@@ -16,7 +16,7 @@ A python wrapper for the [Bitso API](https://bitso.com/api_info/)
 
 ```python
  >>> import bitso
- >>> api = bitso.Api(CLIENT_ID, API_KEY, API_SECRET)
+ >>> api = bitso.Api(API_KEY, API_SECRET)
 ```
 
 
@@ -166,15 +166,6 @@ Decimal('0.8500')
 ```
 
 ### Ledger ###
-## Parameters
-## [marker]    - Returns objects that are older or newer (depending on 'sort’) than the object with this ID
-##                 - string
-## [limit = 25]   - Limit result to that many transactions
-##                 - int
-## [sort = 'desc'] - Sorting by datetime
-##                 - string - 'asc' or
-##                 - 'desc'
-
 ```python
 ## A ledger of your historic operations.
 ## Parameters

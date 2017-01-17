@@ -400,6 +400,7 @@ class Order(BaseModel):
             setattr(self, 'updated_at',  dateutil.parser.parse(kwargs.get('updated_at')))
 
 
+
     def __repr__(self):
         return "Order(oid={oid}, type={type}, price={price}, original_amount={original_amount})".format(
             oid=self.oid,

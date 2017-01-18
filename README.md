@@ -66,19 +66,19 @@ Decimal('0.00500000')
 >>> ob.updated_at
 atetime.datetime(2016, 12, 13, 22, 54, 2, tzinfo=tzutc()) 
 >>> ob.bids
-[PublcOrder(book=btc_mxn,price=3160.00, amount=0.63966069),
- PublcOrder(book=btc_mxn,price=2959.00, amount=0.72143122),
- PublcOrder(book=btc_mxn,price=2850.00, amount=3.00000000),
- PublcOrder(book=btc_mxn,price=2750.00, amount=1.00000000),
- PublcOrder(book=btc_mxn,price=2500.12, amount=45.00000000),
+[PublicOrder(book=btc_mxn,price=3160.00, amount=0.63966069),
+ PublicOrder(book=btc_mxn,price=2959.00, amount=0.72143122),
+ PublicOrder(book=btc_mxn,price=2850.00, amount=3.00000000),
+ PublicOrder(book=btc_mxn,price=2750.00, amount=1.00000000),
+ PublicOrder(book=btc_mxn,price=2500.12, amount=45.00000000),
  ...
 ]
 >>> ob.asks
 
-[PublcOrder(book=btc_mxn,price=8000.00, amount=48.37402966),
- PublcOrder(book=btc_mxn,price=8160.00, amount=0.12340000),
- PublcOrder(book=btc_mxn,price=9000.00, amount=40.00000000),
- PublcOrder(book=btc_mxn,price=9160.00, amount=0.76500000)
+[PublicOrder(book=btc_mxn,price=8000.00, amount=48.37402966),
+ PublicOrder(book=btc_mxn,price=8160.00, amount=0.12340000),
+ PublicOrder(book=btc_mxn,price=9000.00, amount=40.00000000),
+ PublicOrder(book=btc_mxn,price=9160.00, amount=0.76500000)
  ...
  ]
 

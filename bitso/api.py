@@ -607,7 +607,7 @@ class Api(object):
         """
 
         
-        url = '%s/card_withdrawal/' % self.base_url
+        url = '%s/debit_card_withdrawal/' % self.base_url
         parameters = {}
         parameters['amount'] = str(amount).encode('utf-8')
         parameters['recipient_given_names'] = first_names

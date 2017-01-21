@@ -641,7 +641,7 @@ class Api(object):
         """
 
         
-        url = '%s/card_withdrawal/' % self.base_url
+        url = '%s/phone_withdrawal/' % self.base_url
         parameters = {}
         parameters['amount'] = str(amount).encode('utf-8')
         parameters['recipient_given_names'] = first_names
@@ -662,7 +662,7 @@ class Api(object):
           A Dictinoary with the name of each bank as keys and it's corresponding key as values
         """
 
-        url = '%s/fees/' % self.base_url
+        url = '%s/mx_bank_codes/' % self.base_url
         resp = self._request_url(url, 'GET', private=True)
         banks = {}
         for bank_item in resp['payload']:

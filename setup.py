@@ -18,6 +18,7 @@ setup(
     long_description=long_description,
     install_requires=[
         "requests >= 2.2.1",
-        "websocket == 0.40.0"
+        "websocket == 0.40.0",
+        "dateutil >= 1.5"
     ],
 )

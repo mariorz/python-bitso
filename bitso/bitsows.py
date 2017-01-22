@@ -24,11 +24,7 @@
 #SOFTWARE.
 
 import json
-import time
-import thread
-
-from ws4py.client.threadedclient import WebSocketClient
-from ws4py.messaging import Message, PingControlMessage
+import websocket
 from models import StreamUpdate
 
 
@@ -41,44 +37,44 @@ class Listener(object):
 
     def on_close(self, **kwargs):
         pass
-        
+
+
 
 class Client(object):
     def __init__(self, listener):
         self.listener = listener
         self._ws_url = 'wss://ws.bitso.com'
-        self.ws_client = WebSocketClient(self._ws_url)
-        self.ws_client.opened = self.listener.on_connect
-        self.ws_client.received_message = self._received
-        self.ws_client.closed = self._closed
+        self.ws_client = websocket.WebSocketApp(self._ws_url,
+                            on_message = self._on_message,
+                            on_error = self._on_error,
+                            on_close = self._on_close)
         self.channels = []
 
     def connect(self, channels):
         self.channels = channels
-        self.ws_client.opened = self._opened
-        self.ws_client.connect()
+        self.ws_client.on_open = self._on_open
         self.ws_client.run_forever()
 
     def close(self):
+        print "received close"
         self.ws_client.close()
+
+    def _on_close(self, ws):
+        print "closing connection"
+        self.listener.on_close()
         
-    def _opened(self):
+    def _on_error(self, ws, error):
+        print error
+        
+    def _on_open(self, ws):
         for channel in self.channels:
             self.ws_client.send(json.dumps({ 'action': 'subscribe', 'book': 'btc_mxn', 'type': channel }))
-        thread.start_new_thread(self._ping_server, ())
         self.listener.on_connect()
 
-    def _received(self, m):
-        #print m.data
-        val = json.loads(m.data)
+    def _on_message(self, ws, m):
+        val = json.loads(m)
         obj = StreamUpdate(val)
         self.listener.on_update(obj)
         
-    def _closed(self, code, reason):
-        self.listener.on_close(code, reason)
         
-    def _ping_server(self):
-        while True:
-            #keep-alive
-            self.ws_client.send(PingControlMessage(u'ping'))
-            time.sleep(20)
+    

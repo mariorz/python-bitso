@@ -47,7 +47,7 @@ from .models import (
 )
 
 from .api import Api
-from .websocket import (Listener, Client)
+from .bitsows import (Listener, Client)
 
 __author__       = 'Mario Romero'
 __email__        = 'mario@romero.fm'

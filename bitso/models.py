@@ -525,6 +525,8 @@ class OrderUpdate(BaseModel):
                 setattr(self, 'amount', Decimal(str(value)))
             elif param  == 'v':
                 setattr(self, 'value', Decimal(str(value)))
+            elif param == 'o':
+                setattr(self, 'oid', str(value))
         if not hasattr(self, 'amount'):
             setattr(self, 'amount', Decimal('0.0'))
             setattr(self, 'value', Decimal('0.0'))
@@ -535,7 +537,8 @@ class OrderUpdate(BaseModel):
             timestamp=self.timestamp,
             rate=self.rate,
             amount= self.amount,
-            value=self.value)
+            value=self.value,
+            oid=self.oid)
 
 
 
@@ -563,6 +566,9 @@ class TradeUpdate(BaseModel):
 class StreamUpdate(object):
     def __init__(self, json_dict):
         self.channel = json_dict['type']
+        self.sequence_number = None
+        if 'sequence' in json_dict:
+            self.sequence_number = int(json_dict['sequence'])
         self.updates = []
         if 'payload' in json_dict:
             if self.channel == 'diff-orders':

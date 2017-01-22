@@ -607,7 +607,7 @@ class Api(object):
         """
 
         
-        url = '%s/card_withdrawal/' % self.base_url
+        url = '%s/debit_card_withdrawal/' % self.base_url
         parameters = {}
         parameters['amount'] = str(amount).encode('utf-8')
         parameters['recipient_given_names'] = first_names
@@ -641,7 +641,7 @@ class Api(object):
         """
 
         
-        url = '%s/card_withdrawal/' % self.base_url
+        url = '%s/phone_withdrawal/' % self.base_url
         parameters = {}
         parameters['amount'] = str(amount).encode('utf-8')
         parameters['recipient_given_names'] = first_names
@@ -662,7 +662,7 @@ class Api(object):
           A Dictinoary with the name of each bank as keys and it's corresponding key as values
         """
 
-        url = '%s/fees/' % self.base_url
+        url = '%s/mx_bank_codes/' % self.base_url
         resp = self._request_url(url, 'GET', private=True)
         banks = {}
         for bank_item in resp['payload']:
@@ -828,8 +828,10 @@ class Api(object):
     
     def _request_url(self, url, verb, params=None, private=False):
         headers=None
+        if params == None:
+            params = {}
         if private:
-            headers = self._build_auth_header(verb, url)
+            headers = self._build_auth_header(verb, url, json.dumps(params))
         if verb == 'GET':
             url = self._build_url(url, params)
             if private:
@@ -840,12 +842,12 @@ class Api(object):
                 raise
         elif verb == 'POST':
             try:
-                resp = requests.post(url, data=params, headers=headers)
+                resp = requests.post(url, json=params, headers=headers)
             except requests.RequestException as e:
                 raise
         elif verb == 'DELETE':
             try:
-                resp = requests.delete(url, data=params, headers=headers)
+                resp = requests.delete(url, json=params, headers=headers)
             except requests.RequestException as e:
                 raise
         data = self._parse_json(resp.content.decode('utf-8'))

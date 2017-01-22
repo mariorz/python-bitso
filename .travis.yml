@@ -3,6 +3,7 @@ python:
   - 2.7
 install:
   - pip install -q requests
-  - pip install -q ws4py
+  - pip install -q websocket
+  - pip install -q dateutil
 script:
   - python test.py

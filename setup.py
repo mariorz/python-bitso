@@ -7,17 +7,17 @@ else:
     long_description = 'A python wrapper for the Bitso API.'
 
 setup(
-    name='python-bitso',
-    version='0.1.9',
+    name='bitso-py',
+    version='0.2.0',
     author='Mario Romero',
-    author_email='mario@romero.fm',
+    author_email='mario@bitso.com',
     packages=['bitso', 'tests'],
-    url='https://github.com/mariorz/python-bitso',
+    url='https://github.com/bitsoex/bitso-py',
     license='LICENSE.txt',
     description='A python wrapper for the Bitso API.',
     long_description=long_description,
     install_requires=[
         "requests >= 2.2.1",
-        "ws4py >= 0.3.4"
+        "websocket == 0.40.0"
     ],
 )

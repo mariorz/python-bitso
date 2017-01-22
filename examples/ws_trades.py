@@ -30,10 +30,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ##
 
 
-from bitso import websocket
+from bitso import Client, Listener
 
 
-class BasicBitsoListener(websocket.Listener):
+class BasicBitsoListener(Listener):
     def on_connect(self):
         print "Connected"
         
@@ -43,9 +43,25 @@ class BasicBitsoListener(websocket.Listener):
         
 if __name__ == '__main__':
     listener = BasicBitsoListener()
-    client = websocket.Client(listener)
-    channels = ['trades']
+    client = Client(listener)
+    channels = ['diff-orders']
     client.connect(channels)
     
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
+

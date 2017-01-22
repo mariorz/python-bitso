@@ -23,35 +23,62 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-
+import sys
 from bintrees import FastRBTree
+import logging
+from decimal import Decimal
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 class OrderTree(object):
     def __init__(self):
         self.price_tree = FastRBTree()
-        self.price_map = {} 
         self.min_price = None
         self.max_price = None
 
+    def get_orders_at_price(self, price):
+        return self.price_tree.get(price)
 
-    def insert_price(self, price, amount):
-        self.price_tree.insert(price, amount)
-        self.price_map[price] = amount
-        if self.max_price == None or price > self.max_price:
-            self.max_price = price
-        if self.min_price == None or price < self.min_price:
-            self.min_price = price
-
-
-    def update_price(self, price, amount):
         
-        self.price_tree.insert(price, amount) #updates if key exists
-        self.price_map[price] = amount
+    def insert_price(self, price, amount, oid):
+        ## ignore market order
+        if price == Decimal(0.0):            
+            return
+        prev_val = self.get_orders_at_price(price)
+        if prev_val != None:
+            ## price exists in local order book
+            if oid in prev_val:
+                ## update to an existing order at price
+                prev_val['total'] = prev_val['total'] - prev_val[oid] + amount
+                prev_val[oid] = amount
+            else:
+                ## new order at price
+                prev_val['total'] += amount
+                prev_val[oid] = amount
+            self.price_tree.insert(price, prev_val)
+        else:
+            ## price did not exit in order book
+            val = {'total': amount, oid: amount}
+            self.price_tree.insert(price, val)
+
+        if self.price_tree.get(price)['total'] > 0:
+            if self.max_price == None or price > self.max_price:
+                self.max_price = price
+            if self.min_price == None or price < self.min_price:
+                self.min_price = price
+        elif self.price_tree.get(price)['total'] == 0:
+            ## price removed from orderbook
+            try:
+                self.remove_price(price)
+            except:
+                logging.error("tried to remove unknown price; %s" % (price))
+        else:
+            ## something has gone terribly wrong
+            logging.error("total amount at price %s went to negative amounts" % (price))
         
     def remove_price(self, price):
         self.price_tree.remove(price)
-        del self.price_map[price]
-
         if self.max_price == price:
             try:
                 self.max_price = max(self.price_tree)
@@ -63,11 +90,3 @@ class OrderTree(object):
             except ValueError:
                 self.min_price = None
 
-    def price_exists(self, price):
-        return price in self.price_map
-
-    def max(self):
-        return self.max_price
-
-    def min(self):
-        return self.min_price

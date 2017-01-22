@@ -4,6 +4,6 @@ python:
 install:
   - pip install -q requests
   - pip install -q websocket
-  - pip install -q dateutil
+  - pip install -q python-dateutil
 script:
   - python test.py

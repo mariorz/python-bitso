@@ -1,5 +1,5 @@
 import os
-from distutils.core import setup
+from setuptools import setup
 
 if os.path.exists('README.md'):
     long_description = open('README.md').read()
@@ -18,7 +18,7 @@ setup(
     long_description=long_description,
     install_requires=[
         "requests >= 2.2.1",
-        "websocket == 0.40.0",
-        "dateutil >= 1.5"
+        "websocket-client == 0.40.0",
+        "python-dateutil >= 1.5"
     ],
 )

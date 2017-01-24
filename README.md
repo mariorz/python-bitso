@@ -349,14 +349,18 @@ u'true' #on success
 ##                    - str
 ## [side] - the order side (buy, sell) 
 ##                    - str
-## [order_type] - the order type (limit, market) 
+## [type] - the order type (limit, market) 
 ##                    - str
 ## amount - Amount of major currency to buy.
 ##        - string
-## price  - Specified price for the limit order.
+## major  - The amount of major currency for this order. An order must be specified in terms of major or minor, never both.
+##        - string. Major denotes the cryptocurrency, in our case Bitcoin (BTC) or Ether (ETH).
+## minor  - The amount of minor currency for this order. Minor denotes fiat currencies, in our case Mexican Peso (MXN)
+##        - string
+## price  - Price per unit of major. For use only with limit orders
 ##        - string
 
->>> order = api.place_order(book='btc_mxn', side='buy', order_type='limit', amount='.01', price='7000.00')
+>>> order = api.place_order(book='btc_mxn', side='buy', type='limit', major='.01', price='7000.00')
 >>> order
 Order(order_id=0zx3f7b8k5jrx1vj123y4nfkd9sguihvhfywm957epycqtvsvzq0m6k0fdgavy5d, type=buy, price=7000.00, amount=0.01000000, created_datetime=2016-04-22 14:43:13)
 >>> order.order_id

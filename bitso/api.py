@@ -182,7 +182,7 @@ class Api(object):
     def account_required_fields(self):
         """
         This endpoint returns a list of required fields and their 
-        descriptions for use in the “Account Creation” endpoint.
+        descriptions for use in the [Account Creation] endpoint.
 
         Returns:
           A Dictionary qith required fields and descriptions        

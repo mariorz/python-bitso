@@ -496,13 +496,13 @@ class Api(object):
             raise ApiClientError({u'message': u'book not specified.'})
         if kwargs.get('side') is None:
             raise ApiClientError({u'message': u'side not specified.'})
-        if kwargs.get('type') is None:
+        if kwargs.get('order_type') is None:
             raise ApiClientError({u'message': u'order type not specified.'})
 
         url = '%s/orders/' % self.base_url
         parameters = {}
         parameters['book'] = kwargs.get('book')
-        parameters['type'] = kwargs.get('type')
+        parameters['type'] = kwargs.get('order_type')
         parameters['side'] = kwargs.get('side')
         if 'major' in kwargs:
             parameters['major'] = str(kwargs['major']).encode('utf-8')

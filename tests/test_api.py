@@ -522,25 +522,14 @@ class PrivateApiTest(unittest.TestCase):
     {
         "success": true,
         "payload": {
-            "book": "btc_mxn",
-            "original_amount": "0.12680000",
-            "unfilled_amount": "0.12680000",
-            "original_value": "507.2",
-            "created_at": "2016-04-08T17:52:31.000+00:00",
-            "updated_at": "2016-04-08T17:52:41.000+00:00",
-            "price": "4000.00",
-            "oid": "qlbga6b600n3xta7actori10z19acfb20njbtuhtu5xry7z8jswbaycazlkc0wf1",
-            "side": "sell",
-            "status": "open",
-            "type": "limit"
-            }
+            "oid": "qlbga6b600n3xta7actori10z19acfb20njbtuhtu5xry7z8jswbaycazlkc0wf1"
+        }
     }
         """)
         with mock.patch('requests.post', return_value=response):
             result = self.api.place_order(book='btc_mxn', side='buy', order_type='limit', major='0.1', price='5600')
-        self.assertIsInstance(result, bitso.Order)
-        self.assertIsInstance(result.created_at,datetime.datetime)
-        self.assertEqual(result.original_amount, Decimal('0.12680000'))
+        self.assertIsInstance(result, dict)
+        self.assertEqual(result['oid'], 'qlbga6b600n3xta7actori10z19acfb20njbtuhtu5xry7z8jswbaycazlkc0wf1')
 
         
 

@@ -502,7 +502,7 @@ class Api(object):
         url = '%s/orders/' % self.base_url
         parameters = {}
         parameters['book'] = kwargs.get('book')
-        parameters['type'] = kwargs.get('type')
+        parameters['type'] = kwargs.get('order_type')
         parameters['side'] = kwargs.get('side')
         if 'major' in kwargs:
             parameters['major'] = str(kwargs['major']).encode('utf-8')
@@ -512,7 +512,7 @@ class Api(object):
             parameters['price'] = str(kwargs['price']).encode('utf-8')
 
         resp = self._request_url(url, 'POST', params=parameters, private=True)
-        return Order._NewFromJsonDict(resp['payload']) 
+        return resp['payload']
 
 
 

@@ -402,9 +402,10 @@ class Order(BaseModel):
 
 
     def __repr__(self):
-        return "Order(oid={oid}, type={type}, price={price}, original_amount={original_amount})".format(
+        return "Order(oid={oid}, side={side}, order_type={order_type}, price={price}, original_amount={original_amount})".format(
             oid=self.oid,
-            type=self.type,
+            side=self.side,
+            order_type=self.type,
             price=self.price,
             original_amount=self.original_amount)
 

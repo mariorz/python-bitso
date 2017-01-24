@@ -57,25 +57,27 @@ class OrderTree(object):
                 prev_val['total'] += amount
                 prev_val[oid] = amount
             self.price_tree.insert(price, prev_val)
-        else:
+        elif amount != 0.0:
             ## price did not exit in order book
             val = {'total': amount, oid: amount}
             self.price_tree.insert(price, val)
 
-        if self.price_tree.get(price)['total'] > 0:
-            if self.max_price == None or price > self.max_price:
-                self.max_price = price
-            if self.min_price == None or price < self.min_price:
-                self.min_price = price
-        elif self.price_tree.get(price)['total'] == 0:
-            ## price removed from orderbook
-            try:
+        try:
+            val = self.price_tree.get(price)
+            if val['total'] > 0:
+                if self.max_price == None or price > self.max_price:
+                    self.max_price = price
+                if self.min_price == None or price < self.min_price:
+                    self.min_price = price
+            elif val['total'] == 0:
+                ## price removed from orderbook
                 self.remove_price(price)
-            except:
-                logging.error("tried to remove unknown price; %s" % (price))
-        else:
-            ## something has gone terribly wrong
-            logging.error("total amount at price %s went to negative amounts" % (price))
+            else:
+                ## something has gone terribly wrong
+                logging.error("total amount at price %s went to negative amounts" % (price))
+
+        except:
+            logging.error("price (%s) does not exist in orderbook" % (price))
         
     def remove_price(self, price):
         self.price_tree.remove(price)

@@ -496,7 +496,7 @@ class Api(object):
             raise ApiClientError({u'message': u'book not specified.'})
         if kwargs.get('side') is None:
             raise ApiClientError({u'message': u'side not specified.'})
-        if kwargs.get('order_type') is None:
+        if kwargs.get('type') is None:
             raise ApiClientError({u'message': u'order type not specified.'})
 
         url = '%s/orders/' % self.base_url
@@ -512,7 +512,7 @@ class Api(object):
             parameters['price'] = str(kwargs['price']).encode('utf-8')
 
         resp = self._request_url(url, 'POST', params=parameters, private=True)
-        return Order._NewFromJsonDict(resp['payload']) 
+        return resp['payload']
 
 
 

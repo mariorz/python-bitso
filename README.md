@@ -271,7 +271,7 @@ Decimal('49596.65217865')
 ## [sort = 'desc'] - Sorting by datetime
 ##                 - string - 'asc' or
 ##                 - 'desc'
->>> trades = api.user_trades()
+>>> utx = api.user_trades()
 >>> utx
 [UserTrade(tid=1610, book=btc_mxn, price=3160.00, major=-0.00797922, minor=25.21433520),
  UserTrade(tid=1609, book=btc_mxn, price=3160.00, major=-0.01000000, minor=31.60000000),
@@ -307,7 +307,7 @@ Decimal('7780.00')
 ##                 - string - 'asc' or
 ##                 - 'desc'
 
->>> oo = api.open_orders()
+>>> oo = api.open_orders('btc_mxn')
 >>> oo
 [Order(order_id=s5ntlud6oupippk8iigw5dazjdxwq5vibjcwdp32ksk9i4h0nyxsc8svlpscuov5, side=buy, price=7000.00, original_amount=0.01000000, created_datetime=2016-04-22 14:31:10)]
 >>> oo[0].price

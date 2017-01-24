@@ -174,24 +174,78 @@ class Api(object):
         Returns:
           A bitso.AccountStatus instance.        
         """
-
         url = '%s/account_status/' % self.base_url
         resp = self._request_url(url, 'GET', private=True)
         return AccountStatus._NewFromJsonDict(resp['payload'])
 
         
     def account_required_fields(self):
+        """
+        This endpoint returns a list of required fields and their 
+        descriptions for use in the “Account Creation” endpoint.
+
+        Returns:
+          A Dictionary qith required fields and descriptions        
+        """
         url = '%s/account_required_fields/' % self.base_url
         resp = self._request_url(url, 'GET')
         return [AccountRequiredField._NewFromJsonDict(x) for x in resp['payload']]
 
 
     def create_account(self, **kwargs):
+        """This endpoint creates a new Bitso user account.
+                
+        Args:
+          All parameters as returned by the [account_required_fields] endpoint
+          are required
+
+            
+        Returns:
+          A dictionary with client_id, and account_level
+        """
+
         url = '%s/accounts/' % self.base_url
         resp = self._request_url(url, 'POST', params=kwargs)
         return resp['payload']
 
-        
+    
+    def register_phone(self, phone_number):
+        """This endpoint is used to register Mobile phone number for verification.
+
+                
+        Args:
+          phone_number(str):
+            Mobile phone number to register (10 digits)
+            
+        Returns:
+          A Dictinoary object       
+        """
+
+        url = '%s/phone_number/' % self.base_url
+        parameters = {'phone_number': phone_number}
+        resp = self._request_url(url, 'POST', params=parameters, private=True)
+        return resp['payload']
+
+
+    def verify_phone(self, verification_code):
+        """This endpoint is used to verify a registered mobile phone number
+
+                
+        Args:
+          verification_code(str):
+            Verification code sent by SMS when registering a phone
+            with the [register_phone] endpoint
+            
+        Returns:
+          A Dictinoary object       
+        """
+
+        url = '%s/phone_verification/' % self.base_url
+        parameters = {'verification_code': verification_code}
+        resp = self._request_url(url, 'POST', params=parameters, private=True)
+        return resp['payload']
+
+
     
     def balances(self):
         """Get a user's balance.

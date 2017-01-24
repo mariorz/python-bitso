@@ -1,4 +1,4 @@
-# python-bitso #
+# bitso-py #
 
 A python wrapper for the [Bitso API](https://bitso.com/api_info/) 
 

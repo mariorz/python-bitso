@@ -349,14 +349,14 @@ u'true' #on success
 ##                    - str
 ## [side] - the order side (buy, sell) 
 ##                    - str
-## [type] - the order type (limit, market) 
+## [order_type] - the order type (limit, market) 
 ##                    - str
 ## amount - Amount of major currency to buy.
 ##        - string
 ## price  - Specified price for the limit order.
 ##        - string
 
->>> order = api.place_order(book='btc_mxn', side='buy', type='limit', amount='.01', price='7000.00')
+>>> order = api.place_order(book='btc_mxn', side='buy', order_type='limit', amount='.01', price='7000.00')
 >>> order
 Order(order_id=0zx3f7b8k5jrx1vj123y4nfkd9sguihvhfywm957epycqtvsvzq0m6k0fdgavy5d, type=buy, price=7000.00, amount=0.01000000, created_datetime=2016-04-22 14:43:13)
 >>> order.order_id

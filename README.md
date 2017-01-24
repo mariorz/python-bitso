@@ -1,4 +1,4 @@
-# python-bitso #
+# bitso-py #
 
 A python wrapper for the [Bitso API](https://bitso.com/api_info/) 
 
@@ -309,7 +309,7 @@ Decimal('7780.00')
 
 >>> oo = api.open_orders()
 >>> oo
-[Order(order_id=s5ntlud6oupippk8iigw5dazjdxwq5vibjcwdp32ksk9i4h0nyxsc8svlpscuov5, type=buy, price=7000.00, amount=0.01000000, created_datetime=2016-04-22 14:31:10)]
+[Order(order_id=s5ntlud6oupippk8iigw5dazjdxwq5vibjcwdp32ksk9i4h0nyxsc8svlpscuov5, side=buy, price=7000.00, original_amount=0.01000000, created_datetime=2016-04-22 14:31:10)]
 >>> oo[0].price
 Decimal('7000.00')
 >>> oo[0].order_id
@@ -326,8 +326,8 @@ s5ntlud6oupippk8iigw5dazjdxwq5vibjcwdp32ksl9i4h0nyxsc8svlpscuov5
 ##          - string
 >>> orders = api.lookup_order([ORDER_ID1, ORDER_ID2])
 >>> orders
-[Order(order_id=s0ntlud6oupippk8iigw5dazjdxwq5vibjcwdp12ksk9i4h0nyxsc8svlpscuov5, type=buy, price=7000.00, amount=0.01000000, created_datetime=2016-04-22 14:31:10),
- Order(order_id=whtyptv0f348fajdydoswcf6cj20d0kahd77657l7ctnnd1lrpdn2suebwfpxz0f, type=buy, price=7200.00, amount=0.01200000, created_datetime=2016-04-22 14:32:10)]
+[Order(order_id=s0ntlud6oupippk8iigw5dazjdxwq5vibjcwdp12ksk9i4h0nyxsc8svlpscuov5, side=buy, price=7000.00, original_amount=0.01000000, created_datetime=2016-04-22 14:31:10),
+ Order(order_id=whtyptv0f348fajdydoswcf6cj20d0kahd77657l7ctnnd1lrpdn2suebwfpxz0f, side=buy, price=7200.00, original_amount=0.01200000, created_datetime=2016-04-22 14:32:10)]
 ```
 
 ### Cancel Order ###
@@ -341,43 +341,34 @@ s5ntlud6oupippk8iigw5dazjdxwq5vibjcwdp32ksl9i4h0nyxsc8svlpscuov5
 u'true' #on success
 ```
 
-### Buy Order ###
+### Place Order ###
 
 ```python
 ## Places a buy limit order.
+## [book] - Specifies which book to use (btc_mxn, eth_mxn)
+##                    - str
+## [side] - the order side (buy, sell) 
+##                    - str
+## [order_type] - the order type (limit, market) 
+##                    - str
 ## amount - Amount of major currency to buy.
 ##        - string
-## price  - Specified price for the limit order.
+## major  - The amount of major currency for this order. An order must be specified in terms of major or minor, never both.
+##        - string. Major denotes the cryptocurrency, in our case Bitcoin (BTC) or Ether (ETH).
+## minor  - The amount of minor currency for this order. Minor denotes fiat currencies, in our case Mexican Peso (MXN)
 ##        - string
-## [book = 'btc_mxn'] - Specifies which book to use
-##                    - str
->>> order = api.buy(amount='.01', price='7000.00')
+## price  - Price per unit of major. For use only with limit orders
+##        - string
+
+>>> order = api.place_order(book='btc_mxn', side='buy', order_type='limit', major='.01', price='7000.00')
 >>> order
-Order(order_id=0zx3f7b8k5jrx1vj123y4nfkd9sguihvhfywm957epycqtvsvzq0m6k0fdgavy5d, type=buy, price=7000.00, amount=0.01000000, created_datetime=2016-04-22 14:43:13)
+Order(order_id=0zx3f7b8k5jrx1vj123y4nfkd9sguihvhfywm957epycqtvsvzq0m6k0fdgavy5d, side=buy, price=7000.00, original_amount=0.01000000, created_datetime=2016-04-22 14:43:13)
 >>> order.order_id
 u'0zx3f7b8k5jrx1vj123y4nfkd9sguihvhfywm957epycqtvsvzq0m6k0fdgavy5d'
 >>> order.price
 Decimal('7000.00')
 >>> order.amount
 Decimal('0.01000000')
-
-```
-
-### Sell Order ###
-
-```python
-## Places a sell order (both limit and market orders are available)
-## amount - 
-##        - string
-## price  - If supplied, this will place a limit order to sell at the specified price.
-##            If not supplied, this will place a market order to sell the amount of major
-##            currency specified in amount at the market rate
-##        - string
-## [book = 'btc_mxn']    - Specifies which book to use
-##                       - str
->>> s_order = api.sell(amount='.0032', price='08000')
->>> s_order
-Order(order_id=whtyptv0f348fajdydoswcf6cj20d0kahd97647l7ctnnd1lrpdn2suebwfpxz0f, type=sell, price=8000.00, amount=0.00320000, created_datetime=2016-04-22 15:41:00)
 
 ```
 

@@ -30,7 +30,9 @@ from .models import (
     Ticker,
     OrderBook,
     Balance,
+    Balances,
     Fee,
+    Fees,
     Trade,
     UserTrade,
     Order,
@@ -41,10 +43,12 @@ from .models import (
     FundingDestination,
     Withdrawal,
     Funding,
-    AvilableBook,
+    Book,
+    AvailableBooks,
     AccountStatus,
     AccountRequiredField
 )
+
 
 from .api import Api
 from .bitsows import (Listener, Client)

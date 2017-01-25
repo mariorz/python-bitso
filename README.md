@@ -28,10 +28,10 @@ A python wrapper for the [Bitso API](https://bitso.com/api_info/)
 ## Order books available on Bitso
  >>> books = api.available_books()
  >>> books
- [AvilableBook(book=btc_mxn), AvilableBook(book=eth_mxn)]
- >>>books[0].book
-u'btc_mxn'
- >>> books[0].minimum_amount
+AvilableBooks(books=btc_mxn,eth_mxn)
+ >>> books.btc_mxn
+Book(symbol=btc_mxn)
+ >>> books.btc_mxn.minimum_amount
 Decimal('0.00500000')
  ```
 
@@ -146,9 +146,13 @@ Decimal('5300.00')
 ```python
 ## Your account balances
 >>> balances = api.balances()
->>> balances[0].currency
+>>> balances
+Balances(currencies=btc,etc,eth,mxn)
+>>> balances.currencies
+[u'btc', u'etc', u'eth', u'mxn']
+>>> balances.btc.name
 u'btc'
->>> balances[0].available
+>>> balances.btc.available
 Decimal('3.46888741')
 
 ```
@@ -158,9 +162,13 @@ Decimal('3.46888741')
 ```python
 ## Your trade fees
 >>> fees = api.fees()
->>> fees[0].book
-u'btc_mxn'
->>> fees[0].fee_percent
+>>> fees
+Fees(books=btc_mxn,eth_mxn)
+>>> fees.books
+[u'btc_mxn', u'eth_mxn']
+>>> fees.btc_mxn
+Fee(book=btc_mxn, fee_percent=0.0000)
+>>> fees.btc_mxn.fee_percent
 Decimal('0.8500')
 
 ```
@@ -397,9 +405,22 @@ u'3CEWgs1goBbafUoThjWff4oX4wQKfxqpeV'
 ##         - string
 ## address - The Bitcoin address to send the amount to
 ##         - string
->>> api.bitcoin_withdrawal('1.10', '1TVXn5ajmMQEbkiYNobgHVutVtMWcNZGV')
+>>> api.btc_withdrawal('14', '0x55f03a62acc946dedcf8a0c47f16ec3892b29e6d')
 ok   # Returns 'ok' on success
 ```
+
+### Ether Withdrawal ###
+
+```python
+## Triggers a bitcoin withdrawal from your account
+## amount  - The amount of BTC to withdraw from your account
+##         - string
+## address - The Bitcoin address to send the amount to
+##         - string
+>>> api.eth_withdrawal('1.10', '1TVXn5ajmMQEbkiYNobgHVutVtMWcNZGV')
+ok   # Returns 'ok' on success
+```
+
 
 
 ### Ripple Withdrawal ###
@@ -634,16 +655,24 @@ See [examples/livebookexample.py](https://github.com/bitsoex/bitso-py/blob/maste
 
 The wrapper uses models to represent data structures returned by the Bitso API. 
 
-### bitso.AvilableBook
+### bitso.Book
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
-book | String | Order book symbol | Major_Minor
+symbol | String | Order book symbol | Major_Minor
 minimum_amount | Decimal | Minimum amount of major when placing orders | Major
 maximum_amount | Decimal | Maximum amount of major when placing orders | Major
 minimum_price | Decimal | Minimum price when placing orders	 | Minor
 maximum_price | Decimal | Maximum price when placing orders	 | Minor
 minimum_value | Decimal | Minimum value amount (amount*price) when placing orders		 | Minor
 maximum_value | Decimal | Maximum value amount (amount*price) when placing orders	 | Minor
+
+
+### bitso.AvailableBooks
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+books | list | symbols for each book available | -
+btc_mxn | bitso.Book | btc_mxn bitso.Book Object| -
+eth_mxn | bitso.Book | eth_mxn bitso.Book Object| -
 
 
 ### bitso.AccountRequiredField
@@ -688,10 +717,18 @@ created_at | Datetime | OrderBook current datetime |
 ### bitso.Balance
 Atribute | Type | Description | Units
 ------------ | ------------- | ------------- | -------------
-currency | String | 	Currency symbol | 
+name | String | 	Currency name | 
 total | Decimal | Total balance for currency | Currency
 locked | Decimal | Currency balance locked in open orders | Currency
 available | Decimal | Currency balance available for use | Currency
+
+### bitso.Balances
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+currencies | list | name for each currency | -
+mxn | bitso.Balance | mxn bitso.Balance Object | -
+btc | bitso.Balance | btc bitso.Balance Object | -
+eth | bitso.Balance | eth bitso.Balance Object | -
 
 
 ### bitso.Fee
@@ -700,6 +737,13 @@ Atribute | Type | Description | Units
 book | String | Order book symbol | Major_Minor
 fee_decimal | Decimal | Customer trading fee as a decimal |
 fee_percent | Decimal | Customer trading fee as a percentage |
+
+### bitso.Fees
+Atribute | Type | Description | Units
+------------ | ------------- | ------------- | -------------
+books | list | name for each book | -
+btc_mxn | bitso.Fee | btc_mxn bitso.Fee Object | -
+eth_mxn | bitso.Fee | eth_mxn bitso.Fee Object | -
 
 
 

@@ -67,7 +67,7 @@ class PublicApiTest(unittest.TestCase):
            "minimum_value": "25.00",
            "maximum_value": "1000000.00"
         }, {
-           "book": "mxn_eth",
+           "book": "eth_mxn",
            "minimum_amount": ".003",
            "maximum_amount": "1000.00",
            "minimum_price": "100.0",
@@ -78,17 +78,18 @@ class PublicApiTest(unittest.TestCase):
 }
             """)
         with mock.patch('requests.get', return_value=response):
-            books = self.api.available_books()
-        self.assertIsInstance(books, list)
-        for book in books:
-            self.assertIsInstance(book, bitso.AvilableBook)
-            self.assertIsInstance(book.book, basestring)
-            self.assertIsInstance(book.minimum_amount, Decimal)
-            self.assertIsInstance(book.maximum_amount, Decimal)
-            self.assertIsInstance(book.minimum_price, Decimal)
-            self.assertIsInstance(book.maximum_price, Decimal)
-            self.assertIsInstance(book.minimum_value, Decimal)
-            self.assertIsInstance(book.maximum_value, Decimal)
+            ab = self.api.available_books()
+        self.assertIsInstance(ab, bitso.AvailableBooks)
+        for book in ab.books:
+            self.assertIsInstance(getattr(ab, book), bitso.Book)
+        self.assertIsInstance(ab.btc_mxn.symbol, basestring)
+        self.assertEquals(ab.btc_mxn.symbol, 'btc_mxn')
+        self.assertEquals(ab.btc_mxn.minimum_amount, Decimal(".003"))
+        self.assertEquals(ab.btc_mxn.maximum_amount, Decimal("1000.00"))
+        self.assertEquals(ab.btc_mxn.minimum_price, Decimal("100.00"))
+        self.assertEquals(ab.btc_mxn.maximum_price, Decimal("1000000.00"))
+        self.assertEquals(ab.btc_mxn.minimum_value, Decimal("25.00"))
+        self.assertEquals(ab.btc_mxn.maximum_value, Decimal("1000000.00"))
 
     def test_ticker(self):
         response = FakeResponse(b"""
@@ -267,14 +268,13 @@ class PrivateApiTest(unittest.TestCase):
         """)
         with mock.patch('requests.get', return_value=response):
             result = self.api.balances()
-        self.assertIsInstance(result, list)
-        self.assertIsInstance(result[0], bitso.Balance)
-        self.assertIsInstance(result[1], bitso.Balance)
-        self.assertIsInstance(result[2], bitso.Balance)
-        self.assertEqual(result[0].available, Decimal("75.0000"))
-        self.assertEqual(result[1].available, Decimal("75.12345678"))
-        self.assertEqual(result[0].locked, Decimal("25.1234"))
-        self.assertEqual(result[0].currency, "mxn")
+        self.assertIsInstance(result, bitso.Balances)
+        for balance in result.currencies:
+            self.assertIsInstance(getattr(result, balance), bitso.Balance)
+        self.assertEqual(result.mxn.available, Decimal("75.0000"))
+        self.assertEqual(result.btc.available, Decimal("75.12345678"))
+        self.assertEqual(result.mxn.locked, Decimal("25.1234"))
+        self.assertEqual(result.mxn.name, "mxn")
     
 
     def test_fees(self):
@@ -283,30 +283,26 @@ class PrivateApiTest(unittest.TestCase):
             "success": true,
             "payload": {
                 "fees": [{
-                    "book": "mxn_btc",
+                    "book": "btc_mxn",
                     "fee_decimal": "0.0001",
                     "fee_percent": "0.01"
                 }, {
-                    "book": "mxn_eth",
+                    "book": "eth_mxn",
                     "fee_decimal": "0.001",
                     "fee_percent": "0.1"
-                }, {
-                    "book": "cop_btc",
-                    "fee_decimal": "0.01",
-                    "fee_percent": "1"
                 }]
             }
         }
         """)
         with mock.patch('requests.get', return_value=response):
             result = self.api.fees()
-        self.assertIsInstance(result, list)
-        self.assertIsInstance(result[0], bitso.Fee)
-        self.assertIsInstance(result[1], bitso.Fee)
-        self.assertIsInstance(result[2], bitso.Fee)
-        self.assertEqual(result[0].book, "mxn_btc")
-        self.assertEqual(result[0].fee_decimal, Decimal("0.0001"))
-        self.assertEqual(result[0].fee_percent, Decimal("0.01"))
+        self.assertIsInstance(result, bitso.Fees)
+        for book in result.books:
+            self.assertIsInstance(getattr(result, book), bitso.Fee)
+
+        self.assertEqual(result.btc_mxn.book, "btc_mxn")
+        self.assertEqual(result.btc_mxn.fee_decimal, Decimal("0.0001"))
+        self.assertEqual(result.btc_mxn.fee_percent, Decimal("0.01"))
 
     
     def test_ledger(self):

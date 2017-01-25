@@ -33,8 +33,8 @@ from urlparse import urlparse
 from urllib import urlencode
 
 
-from bitso import (ApiError, ApiClientError, Ticker, OrderBook, Balance, Fee, Trade,
-                     UserTrade, Order, TransactionQuote, TransactionOrder, LedgerEntry, FundingDestination, Withdrawal, Funding, AvilableBook, AccountStatus, AccountRequiredField)
+from bitso import (ApiError, ApiClientError, Ticker, OrderBook, Balances, Fees, Trade, UserTrade, Order, TransactionQuote, TransactionOrder, LedgerEntry, FundingDestination, Withdrawal, Funding, AvailableBooks, AccountStatus, AccountRequiredField)
+
 
 def current_milli_time():
     nonce =  str(int(round(time.time() * 1000000)))
@@ -88,7 +88,7 @@ class Api(object):
         """
         url = '%s/available_books/' % self.base_url
         resp = self._request_url(url, 'GET')
-        return [AvilableBook._NewFromJsonDict(book) for book in resp['payload']]
+        return AvailableBooks._NewFromJsonDict(resp)
 
         
     def ticker(self, book):
@@ -245,7 +245,6 @@ class Api(object):
         resp = self._request_url(url, 'POST', params=parameters, private=True)
         return resp['payload']
 
-
     
     def balances(self):
         """Get a user's balance.
@@ -256,7 +255,7 @@ class Api(object):
 
         url = '%s/balance/' % self.base_url
         resp = self._request_url(url, 'GET', private=True)
-        return [Balance._NewFromJsonDict(x) for x in resp['payload']['balances']]
+        return Balances._NewFromJsonDict(resp['payload'])
 
   
     def fees(self):
@@ -268,7 +267,7 @@ class Api(object):
 
         url = '%s/fees/' % self.base_url
         resp = self._request_url(url, 'GET', private=True)
-        return [Fee._NewFromJsonDict(x) for x in resp['payload']['fees']]
+        return Fees._NewFromJsonDict(resp['payload'])
 
 
 
@@ -866,7 +865,7 @@ class Api(object):
         return parameters
 
     def _build_auth_header(self, http_method, url, json_payload=''):
-        if json_payload == {}:
+        if json_payload == {} or json_payload=='{}':
             json_payload = ''
         url_components = urlparse(url)
         request_path = url_components.path
@@ -901,7 +900,7 @@ class Api(object):
                 raise
         elif verb == 'DELETE':
             try:
-                resp = requests.delete(url, json=params, headers=headers)
+                resp = requests.delete(url, headers=headers)
             except requests.RequestException as e:
                 raise
         data = self._parse_json(resp.content.decode('utf-8'))

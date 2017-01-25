@@ -44,10 +44,12 @@ class BaseModel(object):
         return cls(**data)
 
 
-class AvilableBook(BaseModel):
+class Book(BaseModel):
+    """A class that represents the Bitso orderbook and it's limits"""
+
     def __init__(self, **kwargs):
         self._default_params = {
-            'book': kwargs.get('book'),
+            'symbol': kwargs.get('book'),
             'minimum_amount': Decimal(kwargs.get('minimum_amount')),
             'maximum_amount': Decimal(kwargs.get('maximum_amount')),
             'minimum_price': Decimal(kwargs.get('minimum_price')),
@@ -60,8 +62,19 @@ class AvilableBook(BaseModel):
             setattr(self, param, val)
 
     def __repr__(self):
-        return "AvilableBook(book={book})".format(book=self.book)
+        return "Book(symbol={symbol})".format(symbol=self.symbol)
             
+
+class AvailableBooks(BaseModel):
+    """A class that represents Bitso's orderbooks"""
+    def __init__(self, **kwargs):
+        self.books = []
+        for ob in kwargs.get('payload'):
+            self.books.append(ob['book'])
+            setattr(self, ob['book'], Book._NewFromJsonDict(ob))
+
+    def __repr__(self):
+        return "AvilableBooks(books={books})".format(books=','.join(self.books))
 
 
 class AccountStatus(BaseModel):
@@ -189,9 +202,6 @@ class OrderBook(BaseModel):
             updated_at=self.updated_at)
 
 
-
-       
-
 class Balance(BaseModel):
         
     """ A class that represents a Bitso user's balance for a specifc currency. """
@@ -200,7 +210,7 @@ class Balance(BaseModel):
     def __init__(self, **kwargs):
         
         self._default_params = {
-            'currency': kwargs.get('currency'),            
+            'name': kwargs.get('currency'),
             'total': Decimal(kwargs.get('total')),
             'locked': Decimal(kwargs.get('locked')),
             'available': Decimal(kwargs.get('available'))
@@ -208,11 +218,26 @@ class Balance(BaseModel):
 
         for (param, val) in self._default_params.items():
             setattr(self, param, val)
-            
+
     def __repr__(self):
-        return "Balance(currency={currency}, total={total})".format(
-            currency=self.currency,
+        return "Balance(name={name}, total={total})".format(
+            name=self.name,
             total=self.total)
+
+class Balances(BaseModel):
+    """ A class that represents a Bitso user's balances """
+
+    def __init__(self, **kwargs):
+        self.currencies = []
+        for balance in kwargs.get('balances'):
+            self.currencies.append(balance['currency'])
+            setattr(self, balance['currency'],  Balance._NewFromJsonDict(balance))
+
+
+    def __repr__(self):
+        return "Balances(currencies={currencies})".format(
+            currencies=','.join(self.currencies))
+
 
 
 class Fee(BaseModel):
@@ -232,12 +257,29 @@ class Fee(BaseModel):
             setattr(self, param, val)
             
     def __repr__(self):
-        return "Fees(book={book}, fee_percent={fee_percent})".format(
+        return "Fee(book={book}, fee_percent={fee_percent})".format(
             book=self.book,
             fee_percent=self.fee_percent)
 
     
-            
+
+
+class Fees(BaseModel):
+    """ A class that represents a Bitso user's fees """
+
+    def __init__(self, **kwargs):
+        self.books = []
+        for fee in kwargs.get('fees'):
+            self.books.append(fee['book'])
+            setattr(self, fee['book'], Fee._NewFromJsonDict(fee))
+
+    def __repr__(self):
+        return "Fees(books={books})".format(
+            books=','.join(self.books))
+
+
+
+
 class Trade(BaseModel):
 
     """ A class that represents a Bitso public trade. """

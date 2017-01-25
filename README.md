@@ -397,9 +397,22 @@ u'3CEWgs1goBbafUoThjWff4oX4wQKfxqpeV'
 ##         - string
 ## address - The Bitcoin address to send the amount to
 ##         - string
->>> api.bitcoin_withdrawal('1.10', '1TVXn5ajmMQEbkiYNobgHVutVtMWcNZGV')
+>>> api.btc_withdrawal('14', '0x55f03a62acc946dedcf8a0c47f16ec3892b29e6d')
 ok   # Returns 'ok' on success
 ```
+
+### Ether Withdrawal ###
+
+```python
+## Triggers a bitcoin withdrawal from your account
+## amount  - The amount of BTC to withdraw from your account
+##         - string
+## address - The Bitcoin address to send the amount to
+##         - string
+>>> api.eth_withdrawal('1.10', '1TVXn5ajmMQEbkiYNobgHVutVtMWcNZGV')
+ok   # Returns 'ok' on success
+```
+
 
 
 ### Ripple Withdrawal ###

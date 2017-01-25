@@ -82,8 +82,8 @@ class PublicApiTest(unittest.TestCase):
         self.assertIsInstance(ab, bitso.AvailableBooks)
         for book in ab.books:
             self.assertIsInstance(getattr(ab, book), bitso.Book)
-        self.assertIsInstance(ab.btc_mxn.name, basestring)
-        self.assertEquals(ab.btc_mxn.name, 'btc_mxn')
+        self.assertIsInstance(ab.btc_mxn.symbol, basestring)
+        self.assertEquals(ab.btc_mxn.symbol, 'btc_mxn')
         self.assertEquals(ab.btc_mxn.minimum_amount, Decimal(".003"))
         self.assertEquals(ab.btc_mxn.maximum_amount, Decimal("1000.00"))
         self.assertEquals(ab.btc_mxn.minimum_price, Decimal("100.00"))

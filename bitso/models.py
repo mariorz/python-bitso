@@ -49,7 +49,7 @@ class Book(BaseModel):
 
     def __init__(self, **kwargs):
         self._default_params = {
-            'name': kwargs.get('book'),
+            'symbol': kwargs.get('book'),
             'minimum_amount': Decimal(kwargs.get('minimum_amount')),
             'maximum_amount': Decimal(kwargs.get('maximum_amount')),
             'minimum_price': Decimal(kwargs.get('minimum_price')),
@@ -62,7 +62,7 @@ class Book(BaseModel):
             setattr(self, param, val)
 
     def __repr__(self):
-        return "Book(name={name})".format(name=self.name)
+        return "Book(symbol={symbol})".format(symbol=self.symbol)
             
 
 class AvailableBooks(BaseModel):

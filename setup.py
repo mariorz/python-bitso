@@ -8,7 +8,7 @@ else:
 
 setup(
     name='bitso-py',
-    version='0.2.0',
+    version='3.0.0',
     author='Mario Romero',
     author_email='mario@bitso.com',
     packages=['bitso', 'tests'],
@@ -19,6 +19,7 @@ setup(
     install_requires=[
         "requests >= 2.2.1",
         "websocket-client == 0.40.0",
-        "python-dateutil >= 1.5"
+        "python-dateutil >= 1.5",
+        "mock >= 2.0.0" 
     ],
 )

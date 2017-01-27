@@ -370,14 +370,7 @@ u'true' #on success
 
 >>> order = api.place_order(book='btc_mxn', side='buy', order_type='limit', major='.01', price='7000.00')
 >>> order
-Order(oid=0zx3f7b8k5jrx1vj123y4nfkd9sguihvhfywm957epycqtvsvzq0m6k0fdgavy5d, side=buy, price=7000.00, original_amount=0.01000000, created_datetime=2016-04-22 14:43:13)
->>> order.oid
-u'0zx3f7b8k5jrx1vj123y4nfkd9sguihvhfywm957epycqtvsvzq0m6k0fdgavy5d'
->>> order.price
-Decimal('7000.00')
->>> order.amount
-Decimal('0.01000000')
-
+{"oid":"jli47Q3gQqXflk1n"}
 ```
 
 
